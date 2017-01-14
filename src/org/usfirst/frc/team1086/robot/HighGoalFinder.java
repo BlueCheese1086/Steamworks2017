@@ -25,11 +25,9 @@ public class HighGoalFinder extends CameraCalculator {
     @Override public boolean estimationIsGood(){
         return visionObjects.size() == 2 && distance >= 0 && distance <= 240 && Math.abs(angle) < Math.PI / 2;
     }
-
     @Override
     public void setPIDSourceType(PIDSourceType pidSource) {
     }
-
     @Override
     public PIDSourceType getPIDSourceType() {
         return PIDSourceType.kDisplacement;
