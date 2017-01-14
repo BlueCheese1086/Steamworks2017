@@ -21,7 +21,7 @@ public class Robot extends IterativeRobot {
             else
                 drive.gyroDrive(leftStick.getY(), leftStick.getX(), rightStick.getRawButton(1));
         }
-        else drive.drive(0, 0, 0, true);
+        else drive.drive(0, 0, 0, rightStick.getRawButton(1));
     }
     @Override public void testPeriodic(){}
 }
