@@ -15,7 +15,13 @@ public class Robot extends IterativeRobot {
     @Override public void autonomousInit(){}
     @Override public void autonomousPeriodic(){}
     @Override public void teleopPeriodic(){
-        drive.drive(leftStick.getY(), leftStick.getX(), rightStick.getX(), rightStick.getRawButton(1));
+        if(leftStick.getRawButton(1)){
+            if(!rightStick.getRawButton(2))
+                drive.drive(leftStick.getY(), leftStick.getX(), rightStick.getX(), rightStick.getRawButton(1));
+            else
+                drive.gyroDrive(leftStick.getY(), leftStick.getX(), rightStick.getRawButton(1));
+        }
+        else drive.drive(0, 0, 0, true);
     }
     @Override public void testPeriodic(){}
 }
