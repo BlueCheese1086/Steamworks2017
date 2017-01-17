@@ -13,14 +13,13 @@ public class Robot extends IterativeRobot {
         rightStick = new Joystick(RobotMap.RIGHT_STICK);
     }
     @Override public void autonomousInit(){
-        AutonomousRoutine driveForward = new AutonomousRoutine(){
+        AutonomousRoutine driveForwardAndBack = new AutonomousRoutine(){
             @Override public void init(){
-                ac.addSection(5000, () -> {
-                    drive.mecanum(1, 0, 0);
-                });
+                ac.addSection(5000, () -> drive.mecanum( 1, 0, 0));
+                ac.addSection(5000, () -> drive.mecanum(-1, 0, 0));
             }
-        };//Drives forward for 5 seconds. Can be defined in robotInit
-        driveForward.begin();//Run the auto
+        };//Drives forward for 5 seconds then drives backwards for 5 seconds. Can be defined in robotInit
+        driveForwardAndBack.begin();//Run the auto
     }
     @Override public void autonomousPeriodic(){}
     @Override public void teleopPeriodic(){
