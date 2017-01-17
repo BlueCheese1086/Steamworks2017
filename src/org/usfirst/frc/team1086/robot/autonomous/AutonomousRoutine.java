@@ -1,7 +1,7 @@
 package org.usfirst.frc.team1086.robot.autonomous;
 
 public abstract class AutonomousRoutine {
-    AutonomousCommander ac;
+    public AutonomousCommander ac;
     public AutonomousRoutine(){
         ac = new AutonomousCommander();
     }
