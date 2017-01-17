@@ -12,7 +12,16 @@ public class Robot extends IterativeRobot {
         leftStick = new Joystick(RobotMap.LEFT_STICK);
         rightStick = new Joystick(RobotMap.RIGHT_STICK);
     }
-    @Override public void autonomousInit(){}
+    @Override public void autonomousInit(){
+        AutonomousRoutine driveForward = new AutonomousRoutine(){
+            @Override public void init(){
+                ac.addSection(5000, () -> {
+                    drive.mecanum(1, 0, 0);
+                });
+            }
+        };//Drives forward for 5 seconds. Can be defined in robotInit
+        driveForward.begin();//Run the auto
+    }
     @Override public void autonomousPeriodic(){}
     @Override public void teleopPeriodic(){
         if(leftStick.getRawButton(1)){
