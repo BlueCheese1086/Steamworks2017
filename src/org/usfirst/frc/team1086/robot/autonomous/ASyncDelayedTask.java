@@ -1,4 +1,5 @@
-package org.usfirst.frc.team1086.robot;
+package org.usfirst.frc.team1086.robot.autonomous;
+
 public class ASyncDelayedTask extends Thread {
     int time;
     Runnable task;

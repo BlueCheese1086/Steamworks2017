@@ -1,4 +1,4 @@
-package org.usfirst.frc.team1086.robot;
+package org.usfirst.frc.team1086.robot.camera;
 
 public class Constants {
     public static final double CAMERA_VFOV = 67 * Math.PI / 180;//Radians

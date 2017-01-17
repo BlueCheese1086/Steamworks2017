@@ -1,4 +1,4 @@
-package org.usfirst.frc.team1086.robot;
+package org.usfirst.frc.team1086.robot.autonomous;
 
 import java.util.HashMap;
 

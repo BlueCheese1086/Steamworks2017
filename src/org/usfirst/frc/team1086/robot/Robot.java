@@ -2,6 +2,7 @@ package org.usfirst.frc.team1086.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import org.usfirst.frc.team1086.robot.autonomous.*;
 
 public class Robot extends IterativeRobot {
     Drivetrain drive;

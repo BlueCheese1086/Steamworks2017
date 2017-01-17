@@ -1,4 +1,5 @@
-package org.usfirst.frc.team1086.robot;
+package org.usfirst.frc.team1086.robot.autonomous;
+
 public abstract class AutonomousRoutine {
     AutonomousCommander ac;
     public AutonomousRoutine(){
