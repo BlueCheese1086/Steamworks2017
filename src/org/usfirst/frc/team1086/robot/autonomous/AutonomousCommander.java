@@ -12,7 +12,7 @@ public class AutonomousCommander {
         @Override public void run(){
             tick();
             try {
-                sleep(5);
+                sleep(10);
                 if(started)
                     run();
             } catch (Exception e) {}
