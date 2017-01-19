@@ -16,7 +16,6 @@ public class Drivetrain implements PIDSource, PIDOutput {
     Gyro gyro;
     PIDController controller = new PIDController(0, 0, 0, this, this);
     double targetAngle = 0;
-    double lastPower = 0;
     boolean gyroEnabled = false;
     public Drivetrain(){
         leftFrontMecanum = new CANTalon(RobotMap.LEFT_FRONT_MECANUM);
@@ -79,7 +78,7 @@ public class Drivetrain implements PIDSource, PIDOutput {
         return normalizeAngle(gyro.getAngle());
     }
     public double getTurnPower(){
-        return lastPower;
+        return controller.get();
     }
     public double normalizeAngle(double d){
         double ang = (d % 360 + 360 % 360);
@@ -93,7 +92,5 @@ public class Drivetrain implements PIDSource, PIDOutput {
     @Override public double pidGet(){
         return getGyroAngle();
     }
-    @Override public void pidWrite(double output){
-        lastPower = output;
-    }
+    @Override public void pidWrite(double output){}
 }
