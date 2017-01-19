@@ -30,6 +30,12 @@ public class Robot extends IterativeRobot {
             drive.drive(0, 0, targetFinder.turnToAngle(), false);
             return targetFinder.turnToAngle() == 0;
         });
+        endActions.put("Turn To Gear", () -> {
+            if(targetFinder.getTargetType() != CameraTurning.TargetType.GEAR)
+                targetFinder.setTargetType(CameraTurning.TargetType.GEAR);
+            drive.drive(0, 0, targetFinder.turnToAngle(), false);
+            return targetFinder.turnToAngle() == 0;
+        });
         driveForwardAndBack = new AutonomousRoutine(){
             @Override public void init(){
                 addSection(5000, actions.get("Drive Forward"));
@@ -39,7 +45,7 @@ public class Robot extends IterativeRobot {
         };
     }
     @Override public void autonomousInit(){
-        driveForwardAndBack.begin();//Run the auto
+        driveForwardAndBack.begin();
     }
     @Override public void autonomousPeriodic(){}
     @Override public void teleopPeriodic(){
