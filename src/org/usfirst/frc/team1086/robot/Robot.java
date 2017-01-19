@@ -10,16 +10,20 @@ public class Robot extends IterativeRobot {
     Drivetrain drive;
     Joystick leftStick;
     Joystick rightStick;
+    Joystick auxiliaryStick;
     HashMap<String, Runnable> actions = new HashMap();
     HashMap<String, Runnable> startActions = new HashMap();
     HashMap<String, Action> endActions = new HashMap();
     AutonomousRoutine getToGear;
     CameraTurning targetFinder;
+    Shooter flyWheel;
     @Override public void robotInit(){
         drive = new Drivetrain();
         leftStick = new Joystick(RobotMap.LEFT_STICK);
         rightStick = new Joystick(RobotMap.RIGHT_STICK);
+        auxiliaryStick = new Joystick(RobotMap.AUXILIARY_STICK);
         targetFinder = new CameraTurning();
+        flyWheel = new Shooter();
         defineAutonomousActions();
     }
     public void defineAutonomousActions(){
@@ -75,6 +79,9 @@ public class Robot extends IterativeRobot {
                 drive.gyroDrive(leftStick.getY(), leftStick.getX(), rightStick.getRawButton(1));
         }
         else drive.drive(0, 0, 0, rightStick.getRawButton(1));
+        if(auxiliaryStick.getRawButton(3)){
+            flyWheel.shoot();
+        }
     }
     @Override public void testPeriodic(){}
 }
