@@ -67,7 +67,7 @@ public class Drivetrain implements PIDSource, PIDOutput {
         }
     }
     public void setAngle(double d){
-        targetAngle = d;
+        targetAngle = normalizeAngle(d);
         controller.setSetpoint(targetAngle);
         controller.enable();
         controller.setContinuous();

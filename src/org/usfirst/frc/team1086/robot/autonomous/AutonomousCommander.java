@@ -5,6 +5,7 @@ import java.util.HashMap;
 public class AutonomousCommander {
     HashMap<Integer, Double> sectionTimes = new HashMap();
     HashMap<Integer, Runnable> sectionActions = new HashMap();
+    HashMap<Integer, Runnable> sectionStartActions = new HashMap();
     int section;
     double endTime;
     boolean started = false;
@@ -20,14 +21,24 @@ public class AutonomousCommander {
     };
     public AutonomousCommander(){}
     public void addSection(double time, Runnable ru){
-        sectionTimes.put(sectionTimes.size(), time);
-        sectionActions.put(sectionActions.size(), ru);
+        addSection(time, ru, () -> {});
     }
     public void addSection(Action a){
         addSection(Double.POSITIVE_INFINITY, () -> {
             if(a.run())
                 next();
-        });
+        }, () -> {});
+    }
+    public void addSection(double time, Runnable ru, Runnable start){
+        sectionTimes.put(sectionTimes.size(), time);
+        sectionActions.put(sectionActions.size(), ru);
+        sectionStartActions.put(sectionStartActions.size(), start);
+    }
+    public void addSection(Action a, Runnable ru){
+        addSection(Double.POSITIVE_INFINITY, () -> {
+            if(a.run())
+                next();
+        }, ru);
     }
     public void tick(){
         if(System.currentTimeMillis() >= endTime)
@@ -51,6 +62,7 @@ public class AutonomousCommander {
     public void goToSection(int n){
         section = n;
         endTime = System.currentTimeMillis() + sectionTimes.get(0);
+        sectionStartActions.get(n).run();
     }
     public void next(){
         goToSection(section + 1);
