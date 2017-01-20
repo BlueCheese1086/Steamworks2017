@@ -8,12 +8,14 @@ public class RobotMap {
     public static final int RIGHT_FRONT_COLSON = 6;
     public static final int RIGHT_REAR_MECANUM = 7;
     public static final int RIGHT_REAR_COLSON = 8;
-    
+    public static final int SHOOTER = 9;
+
     public static final int LEFT_TRIGGER = 1;
     public static final int RIGHT_TRIGGER = 2;
     
     public static final int LEFT_STICK = 1;
     public static final int RIGHT_STICK = 2;
+    public static final int AUXILIARY_STICK = 5;
     
     public static final int GYRO = 1;
 }

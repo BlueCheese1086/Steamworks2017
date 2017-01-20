@@ -1,4 +1,4 @@
-package org.usfirst.frc.team1086.robot;
+package org.usfirst.frc.team1086.robot.camera;
 
 import edu.wpi.first.wpilibj.PIDSourceType;
 import java.awt.Polygon;
