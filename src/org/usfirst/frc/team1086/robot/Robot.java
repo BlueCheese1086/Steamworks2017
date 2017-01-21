@@ -17,6 +17,7 @@ public class Robot extends IterativeRobot {
     AutonomousRoutine getToGear;
     CameraTurning targetFinder;
     Shooter flyWheel;
+    ImageProcessing imageProcessing;
     @Override public void robotInit(){
         drive = new Drivetrain();
         leftStick = new Joystick(RobotMap.LEFT_STICK);
@@ -24,6 +25,7 @@ public class Robot extends IterativeRobot {
         auxiliaryStick = new Joystick(RobotMap.AUXILIARY_STICK);
         targetFinder = new CameraTurning();
         flyWheel = new Shooter();
+        imageProcessing = new ImageProcessing();
         defineAutonomousActions();
     }
     public void defineAutonomousActions(){
@@ -71,6 +73,9 @@ public class Robot extends IterativeRobot {
         getToGear.begin();
     }
     @Override public void autonomousPeriodic(){}
+    @Override public void teleopInit(){
+    	imageProcessing.start();
+    }
     @Override public void teleopPeriodic(){
         if(leftStick.getRawButton(1)){
             if(!rightStick.getRawButton(2))
