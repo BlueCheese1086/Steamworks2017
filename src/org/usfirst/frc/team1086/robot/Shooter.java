@@ -2,7 +2,6 @@
 package org.usfirst.frc.team1086.robot;
 
 import com.ctre.CANTalon;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
