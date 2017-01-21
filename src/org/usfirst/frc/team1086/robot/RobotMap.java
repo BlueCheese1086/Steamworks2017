@@ -10,6 +10,8 @@ public class RobotMap {
     public static final int RIGHT_REAR_COLSON = 8;
     public static final int SHOOTER = 9;
     public static final int INTAKE = 10;
+    public static final int CLIMB1 = 11; 
+    public static final int CLIMB2 = 12; 
 
     public static final int LEFT_TRIGGER = 1;
     public static final int RIGHT_TRIGGER = 2;

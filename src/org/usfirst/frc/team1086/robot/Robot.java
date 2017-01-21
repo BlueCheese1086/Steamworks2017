@@ -18,6 +18,9 @@ public class Robot extends IterativeRobot {
     CameraTurning targetFinder;
     Shooter flyWheel;
     Intake intake;
+    Climber motor1;
+    Climber motor2;
+    
     @Override public void robotInit(){
         drive = new Drivetrain();
         leftStick = new Joystick(RobotMap.LEFT_STICK);
@@ -80,11 +83,15 @@ public class Robot extends IterativeRobot {
                 drive.gyroDrive(leftStick.getY(), leftStick.getX(), rightStick.getRawButton(1));
         }
         else drive.drive(0, 0, 0, rightStick.getRawButton(1));
-        if(auxiliaryStick.getRawButton(3)){
+        if(auxiliaryStick.getRawButton(ButtonMap.SHOOT)){
             flyWheel.shoot();
-        if(auxiliaryStick.getRawButton(4)){
+        }
+        if(auxiliaryStick.getRawButton(ButtonMap.COLLECT)){
             intake.motorIn();
-        }    
+        }
+        if(auxiliaryStick.getRawButton(ButtonMap.CLIMB)){
+             motor1.climb();
+             motor2.climb();
         }
     }
     @Override public void testPeriodic(){}
