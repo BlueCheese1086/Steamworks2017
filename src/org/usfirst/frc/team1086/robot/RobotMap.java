@@ -9,6 +9,7 @@ public class RobotMap {
     public static final int RIGHT_REAR_MECANUM = 7;
     public static final int RIGHT_REAR_COLSON = 8;
     public static final int SHOOTER = 9;
+    public static final int INTAKE = 10;
 
     public static final int LEFT_TRIGGER = 1;
     public static final int RIGHT_TRIGGER = 2;

@@ -17,6 +17,7 @@ public class Robot extends IterativeRobot {
     AutonomousRoutine getToGear;
     CameraTurning targetFinder;
     Shooter flyWheel;
+    Intake intake;
     @Override public void robotInit(){
         drive = new Drivetrain();
         leftStick = new Joystick(RobotMap.LEFT_STICK);
@@ -81,6 +82,9 @@ public class Robot extends IterativeRobot {
         else drive.drive(0, 0, 0, rightStick.getRawButton(1));
         if(auxiliaryStick.getRawButton(3)){
             flyWheel.shoot();
+        if(auxiliaryStick.getRawButton(4)){
+            intake.motorIn();
+        }    
         }
     }
     @Override public void testPeriodic(){}
