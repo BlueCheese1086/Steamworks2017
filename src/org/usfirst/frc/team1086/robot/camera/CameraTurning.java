@@ -4,8 +4,10 @@ import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
+import java.util.ArrayList;
+import org.opencv.core.MatOfPoint;
 
-public class CameraTurning implements PIDOutput {
+public class CameraTurning implements PIDOutput, CVDataHandler {
     PIDController turnController;
     PIDController driveController;
     TargetType tt = TargetType.BOILER;
@@ -23,6 +25,7 @@ public class CameraTurning implements PIDOutput {
         setTargetType(TargetType.BOILER);
     }
     public final void setTargetType(TargetType tt){
+        this.tt = tt;
         driveController = new PIDController(kPdrive, kIdrive, kDdrive, new PIDSource(){
             @Override public void setPIDSourceType(PIDSourceType pidSource){}
             @Override public PIDSourceType getPIDSourceType(){
@@ -63,5 +66,8 @@ public class CameraTurning implements PIDOutput {
         TargetType(CameraCalculator c){
             this.c = c;
         }
+    }
+    @Override public void handle(ArrayList<MatOfPoint> m){
+        tt.c.handle(m);
     }
 }

@@ -21,7 +21,6 @@ public class Robot extends IterativeRobot {
     Intake intake;
     Climber motor1;
     Climber motor2;
-  
     @Override public void robotInit(){
         drive = new Drivetrain();
         leftStick = new Joystick(RobotMap.LEFT_STICK);
@@ -30,6 +29,7 @@ public class Robot extends IterativeRobot {
         targetFinder = new CameraTurning();
         flyWheel = new Shooter();
         imageProcessing = new ImageProcessing();
+        imageProcessing.setCameraTarget(targetFinder);
         defineAutonomousActions();
     }
     public void defineAutonomousActions(){
