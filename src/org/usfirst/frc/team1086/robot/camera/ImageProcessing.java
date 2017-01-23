@@ -34,14 +34,15 @@ public class ImageProcessing {
             camera.setResolution(640, 480);
             CameraServer.getInstance().startAutomaticCapture(camera);
             CvSink cvSink = CameraServer.getInstance().getVideo();
-            CvSource outputStream = CameraServer.getInstance().putVideo("Blur", 640, 480);
+            CvSource outputVideo = CameraServer.getInstance().putVideo("Target Only", 640, 480);
+            CvSource rawInput = CameraServer.getInstance().putVideo("Raw Video", 640, 480);
             Mat source = new Mat();
             Mat output = new Mat();
             while (true) {
                 cvSink.grabFrame(source);
                 openCVProcess(source, output);
-                //Imgproc.cvtColor(source, output, Imgproc.COLOR_BGR2GRAY);
-                outputStream.putFrame(output);
+                rawInput.putFrame(source);
+                outputVideo.putFrame(output);
             }
         }).start();
     }
