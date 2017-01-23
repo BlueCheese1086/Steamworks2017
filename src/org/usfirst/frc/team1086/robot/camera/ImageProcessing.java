@@ -20,6 +20,7 @@ import org.opencv.imgproc.Imgproc;
 
 public class ImageProcessing {
     CameraServer cs = CameraServer.getInstance();
+    CVDataHandler handler;
     Mat hsvThresholdOutput = new Mat();
     ArrayList<MatOfPoint> findContoursOutput = new ArrayList();
     ArrayList<MatOfPoint> filterContoursOutput = new ArrayList();
@@ -45,6 +46,9 @@ public class ImageProcessing {
                 outputVideo.putFrame(output);
             }
         }).start();
+    }
+    public void setCameraTarget(CVDataHandler handler){
+        this.handler = handler;
     }
     public void openCVProcess(Mat source, Mat output){
         //HSV
@@ -75,8 +79,7 @@ public class ImageProcessing {
         double filterContoursMinRatio = 0;
         double filterContoursMaxRatio = 1000;
         filterContours(filterContoursContours, filterContoursMinArea, filterContoursMinPerimeter, filterContoursMinWidth, filterContoursMaxWidth, filterContoursMinHeight, filterContoursMaxHeight, filterContoursSolidity, filterContoursMaxVertices, filterContoursMinVertices, filterContoursMinRatio, filterContoursMaxRatio, filterContoursOutput);
-
-        //TO-DO: Output filterContoursOutput to NetworkTables
+        handler.handle(filterContoursContours);
     }
     private void hsvThreshold(Mat input, double[] hue, double[] sat, double[] val, Mat out){
         Imgproc.cvtColor(input, out, Imgproc.COLOR_BGR2HSV);

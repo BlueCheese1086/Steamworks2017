@@ -1,17 +1,18 @@
 package org.usfirst.frc.team1086.robot.camera;
 
 import edu.wpi.first.wpilibj.PIDSource;
-import java.awt.Polygon;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
+import org.opencv.core.MatOfPoint;
 
-public abstract class CameraCalculator implements PIDSource {
-    ArrayList<Polygon> visionObjects = new ArrayList();
+public abstract class CameraCalculator implements PIDSource, CVDataHandler {
+    ArrayList<Sighting> visionObjects = new ArrayList();
     double distance, angle;
     public static double TARGET_HEIGHT;
     public CameraCalculator(double height){
         TARGET_HEIGHT = height;
     }
-    public void updateObjects(ArrayList<Polygon> polys){
+    public void updateObjects(ArrayList<Sighting> polys){
         visionObjects.clear();
         visionObjects.addAll(polys);
         validateTargets();
@@ -24,7 +25,7 @@ public abstract class CameraCalculator implements PIDSource {
         if(visionObjects.isEmpty()){
             distance = -1;
         } else {
-            double midY = visionObjects.stream().mapToDouble(p -> p.getBounds2D().getCenterY() / visionObjects.size()).sum();
+            double midY = visionObjects.stream().mapToDouble(p -> p.centerY / visionObjects.size()).sum();
             double angleFromCameraToTarget = getYAngle(midY);
             double verticalAngle = angleFromCameraToTarget + Constants.CAMERA_VERTICAL_ANGLE;
             double changeInY = TARGET_HEIGHT - Constants.CAMERA_ELEVATION;
@@ -37,7 +38,7 @@ public abstract class CameraCalculator implements PIDSource {
         if(visionObjects.isEmpty()){
             angle = Math.PI;
         } else {
-            double midX = visionObjects.stream().mapToDouble(p -> p.getBounds2D().getCenterX() / visionObjects.size()).sum();
+            double midX = visionObjects.stream().mapToDouble(p -> p.centerX / visionObjects.size()).sum();
             double horizontalAngle = Math.PI / 2 - getXAngle(midX);
             double f = Math.sqrt(
                             distance * distance + Math.pow(Constants.CAMERA_HORIZONTAL_OFFSET, 2)
@@ -57,10 +58,10 @@ public abstract class CameraCalculator implements PIDSource {
         double cy = (Constants.MAX_Y_PIXELS / 2) - 0.5;
         return Math.atan((cy - y) / VF);
     }
-    public double polygonArea(Polygon p){
-        return 0;
-    }
     @Override public double pidGet(){
         return angle;
+    }
+    @Override public void handle(ArrayList<MatOfPoint> m){
+        updateObjects(new ArrayList(m.stream().map(n -> new Sighting(n)).collect(Collectors.toList())));
     }
 }
