@@ -50,6 +50,7 @@ public class AutonomousCommander {
             System.out.println("WARNING: Autonomous duration exceeds 15 seconds");
         sectionTimes.put(sectionTimes.size(), Double.POSITIVE_INFINITY);
         sectionActions.put(sectionActions.size(), () -> stop());
+        sectionStartActions.put(sectionActions.size(), () -> stop());
         goToSection(0);
         started = true;
         manager.start();
@@ -58,10 +59,11 @@ public class AutonomousCommander {
         started = false;
         sectionTimes.remove(sectionTimes.size() - 1);
         sectionActions.remove(sectionActions.size() - 1);
+        sectionStartActions.remove(sectionStartActions.size() - 1);
     }
     public void goToSection(int n){
         section = n;
-        endTime = System.currentTimeMillis() + sectionTimes.get(0);
+        endTime = System.currentTimeMillis() + sectionTimes.get(n);
         sectionStartActions.get(n).run();
     }
     public void next(){
