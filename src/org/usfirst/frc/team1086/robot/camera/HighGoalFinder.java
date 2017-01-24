@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 public class HighGoalFinder extends CameraCalculator {
     public HighGoalFinder(){
-        super(Constants.GEAR_GOAL_HEIGHT);
+        super(Constants.HIGH_GOAL_HEIGHT);
     }
     @Override public void validateTargets(){
         visionObjects = new ArrayList(visionObjects.stream().filter(s -> s.solidity > 0.8 && s.aspectRatio > 2).collect(Collectors.toList()));
