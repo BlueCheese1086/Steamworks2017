@@ -14,7 +14,9 @@ public class Robot extends IterativeRobot {
     HashMap<String, Runnable> actions = new HashMap();
     HashMap<String, Runnable> startActions = new HashMap();
     HashMap<String, Action> endActions = new HashMap();
-    AutonomousRoutine getToGear;
+    AutonomousRoutine easyGear;
+    AutonomousRoutine leftGear;
+    AutonomousRoutine rightGear;
     CameraTurning targetFinder;
     Shooter flyWheel;
     ImageProcessing imageProcessing;
@@ -35,11 +37,11 @@ public class Robot extends IterativeRobot {
     public void defineAutonomousActions(){
         actions.put("Drive Forward", () -> drive.drive( 1, 0, 0, false));
         actions.put("Drive Backwards", () -> drive.drive(-1, 0, 0, false));
-        startActions.put("Set Target Turn To 90 Degrees", () -> {
-            drive.setAngle(drive.getGyroAngle() + 90);
+        startActions.put("Set Target Turn To 60 Degrees", () -> {
+            drive.setAngle(drive.getGyroAngle() + 60);
         });
-        startActions.put("Set Target Turn To 270 Degrees", () -> {
-            drive.setAngle(drive.getGyroAngle() - 90);
+        startActions.put("Set Target Turn To 300 Degrees", () -> {
+            drive.setAngle(drive.getGyroAngle() - 60);
         });
         endActions.put("Turn To Target Angle", () -> {
             drive.drive(0, 0, drive.controller.get(), false);
@@ -63,18 +65,28 @@ public class Robot extends IterativeRobot {
             drive.drive(targetFinder.getDrivePower(), 0, targetFinder.turnToAngle(), false);
             return targetFinder.turnToAngle() == 0;
         });
-        getToGear = new AutonomousRoutine(){
+        easyGear = new AutonomousRoutine(){
             @Override public void init(){
-                addSection(1000, actions.get("Drive Forward"));
-                addSection(endActions.get("Turn To Angle"), startActions.get("Set Target Turn To 90 Degrees"));
-                addSection(1000, actions.get("Drive Forward"));
-                addSection(endActions.get("Turn To Angle"), startActions.get("Set Target Turn To 270 Degrees"));
+                addSection(endActions.get("Drive To Gear"));
+            }
+        };
+        leftGear = new AutonomousRoutine(){
+            @Override public void init(){
+                addSection(2000, actions.get("Drive Forward"));
+                addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 60 Degrees"));
+                addSection(endActions.get("Drive To Gear"));
+            }
+        };
+        rightGear = new AutonomousRoutine(){
+            @Override public void init(){
+                addSection(2000, actions.get("Drive Forward"));
+                addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 300 Degrees"));
                 addSection(endActions.get("Drive To Gear"));
             }
         };
     }
     @Override public void autonomousInit(){
-        getToGear.begin();
+        easyGear.begin();
     }
     @Override public void autonomousPeriodic(){}
     @Override public void teleopInit(){
