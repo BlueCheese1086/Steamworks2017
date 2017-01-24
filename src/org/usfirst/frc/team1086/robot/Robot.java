@@ -19,8 +19,7 @@ public class Robot extends IterativeRobot {
     Shooter flyWheel;
     ImageProcessing imageProcessing;
     Intake intake;
-    Climber motor1;
-    Climber motor2;
+    Climber climber;
     @Override public void robotInit(){
         drive = new Drivetrain();
         leftStick = new Joystick(RobotMap.LEFT_STICK);
@@ -98,8 +97,7 @@ public class Robot extends IterativeRobot {
             intake.motorOff();
         }
         if(auxiliaryStick.getRawButton(ButtonMap.CLIMB)){
-             motor1.climb();
-             motor2.climb();
+             climber.climb();
         }
     }
     @Override public void testPeriodic(){}
