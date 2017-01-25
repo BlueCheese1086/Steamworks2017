@@ -86,7 +86,6 @@ public class Drivetrain implements PIDSource, PIDOutput {
         double ang = (d % 360 + 360 % 360);
         return ang > 180 ? ang - 360 : ang;
     }
-    
     @Override public void setPIDSourceType(PIDSourceType pidSource){}
     @Override public PIDSourceType getPIDSourceType(){
         return PIDSourceType.kDisplacement;

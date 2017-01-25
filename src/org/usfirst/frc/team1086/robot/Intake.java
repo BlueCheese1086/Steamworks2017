@@ -11,7 +11,7 @@ public class Intake {
     public void motorIn(){
         intake.set(1);
     }
-    public void motorOff() {
+    public void motorOff(){
         intake.set(0);
     }
 }
