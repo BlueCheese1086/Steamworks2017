@@ -19,8 +19,7 @@ public class Robot extends IterativeRobot {
     Shooter flyWheel;
     ImageProcessing imageProcessing;
     Intake intake;
-    Climber motor1;
-    Climber motor2;
+    Climber climber;
     @Override public void robotInit(){
         drive = new Drivetrain();
         leftStick = new Joystick(RobotMap.LEFT_STICK);
@@ -30,6 +29,7 @@ public class Robot extends IterativeRobot {
         flyWheel = new Shooter();
         imageProcessing = new ImageProcessing();
         imageProcessing.setCameraTarget(targetFinder);
+        imageProcessing.start();
         defineAutonomousActions();
     }
     public void defineAutonomousActions(){
@@ -78,7 +78,6 @@ public class Robot extends IterativeRobot {
     }
     @Override public void autonomousPeriodic(){}
     @Override public void teleopInit(){
-    	imageProcessing.start();
     }
     @Override public void teleopPeriodic(){
         if(leftStick.getRawButton(1)){
@@ -94,9 +93,11 @@ public class Robot extends IterativeRobot {
         if(auxiliaryStick.getRawButton(ButtonMap.COLLECT)){
             intake.motorIn();
         }
+        if(auxiliaryStick.getRawButton(ButtonMap.COLLECT) == false) {
+            intake.motorOff();
+        }
         if(auxiliaryStick.getRawButton(ButtonMap.CLIMB)){
-             motor1.climb();
-             motor2.climb();
+             climber.climb();
         }
     }
     @Override public void testPeriodic(){}
