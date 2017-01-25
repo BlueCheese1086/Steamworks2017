@@ -92,12 +92,13 @@ public class Robot extends IterativeRobot {
         }
         if(auxiliaryStick.getRawButton(ButtonMap.COLLECT)){
             intake.motorIn();
-        }
-        if(auxiliaryStick.getRawButton(ButtonMap.COLLECT) == false) {
+        } 
+        else {
             intake.motorOff();
         }
+        
         if(auxiliaryStick.getRawButton(ButtonMap.CLIMB)){
-             climber.climb();
+            climber.climb();
         }
     }
     @Override public void testPeriodic(){}
