@@ -14,4 +14,8 @@ public class Climber {
         climb1.set(1);
         climb2.set(1);
     }
+    public void stop(){
+        climb1.set(0);
+        climb2.set(0);
+    }
 }

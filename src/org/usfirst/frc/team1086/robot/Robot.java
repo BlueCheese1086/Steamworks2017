@@ -92,13 +92,13 @@ public class Robot extends IterativeRobot {
     @Override public void teleopInit(){
     }
     @Override public void teleopPeriodic(){
-        if(leftStick.getRawButton(1)){
-            if(!rightStick.getRawButton(2))
-                drive.drive(leftStick.getY(), leftStick.getX(), rightStick.getX(), rightStick.getRawButton(1));
+        if(leftStick.getRawButton(ButtonMap.SAFETY_DRIVE)){
+            if(!rightStick.getRawButton(ButtonMap.GYRO_DRIVE))
+                drive.drive(leftStick.getY(), leftStick.getX(), rightStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
             else
-                drive.gyroDrive(leftStick.getY(), leftStick.getX(), rightStick.getRawButton(1));
+                drive.gyroDrive(leftStick.getY(), leftStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         }
-        else drive.drive(0, 0, 0, rightStick.getRawButton(1));
+        else drive.drive(0, 0, 0, rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         if(auxiliaryStick.getRawButton(ButtonMap.SHOOT)){
             flyWheel.shoot();
         }
@@ -111,6 +111,9 @@ public class Robot extends IterativeRobot {
         
         if(auxiliaryStick.getRawButton(ButtonMap.CLIMB)){
             climber.climb();
+        }
+        else {
+            climber.stop();
         }
     }
     @Override public void testPeriodic(){}
