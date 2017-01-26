@@ -89,8 +89,7 @@ public class Robot extends IterativeRobot {
         easyGear.begin();
     }
     @Override public void autonomousPeriodic(){}
-    @Override public void teleopInit(){
-    }
+    @Override public void teleopInit(){}
     @Override public void teleopPeriodic(){
         if(leftStick.getRawButton(1)){
             if(!rightStick.getRawButton(2))

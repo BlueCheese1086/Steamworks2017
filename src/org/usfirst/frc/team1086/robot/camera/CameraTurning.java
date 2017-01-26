@@ -41,7 +41,7 @@ public class CameraTurning implements PIDOutput, CVDataHandler {
         driveController.setContinuous(false);
         driveController.enable();
         turnController = new PIDController(kPturn, kIturn, kDturn, tt.c, this);
-        turnController.setInputRange(-180, 180);
+        turnController.setInputRange(-Math.PI, Math.PI);
         turnController.setOutputRange(-1, 1);
         turnController.setAbsoluteTolerance(kToleranceDegrees);
         turnController.setContinuous(true);
@@ -56,7 +56,7 @@ public class CameraTurning implements PIDOutput, CVDataHandler {
     public double getDrivePower(){
         return pidDrive;
     }
-    @Override public void pidWrite(double output) {
+    @Override public void pidWrite(double output){
         pidTurn = output;
     }
     public static enum TargetType {
