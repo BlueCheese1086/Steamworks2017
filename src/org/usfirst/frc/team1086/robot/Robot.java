@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import java.util.HashMap;
 import org.usfirst.frc.team1086.robot.autonomous.*;
+import org.usfirst.frc.team1086.robot.subsystems.*;
 import org.usfirst.frc.team1086.robot.camera.*;
 
 public class Robot extends IterativeRobot {
@@ -44,8 +45,8 @@ public class Robot extends IterativeRobot {
             drive.setAngle(drive.getGyroAngle() - 60);
         });
         endActions.put("Turn To Target Angle", () -> {
-            drive.drive(0, 0, drive.controller.get(), false);
-            return drive.controller.onTarget();
+            drive.drive(0, 0, drive.getController().get(), false);
+            return drive.getController().onTarget();
         });
         endActions.put("Turn To Boiler", () -> {
             if(targetFinder.getTargetType() != CameraTurning.TargetType.BOILER)
