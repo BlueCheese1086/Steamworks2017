@@ -1,11 +1,12 @@
 
-package org.usfirst.frc.team1086.robot;
+package org.usfirst.frc.team1086.robot.subsystems;
 
 import com.ctre.CANTalon;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
+import org.usfirst.frc.team1086.robot.RobotMap;
 
 public class Shooter implements PIDSource, PIDOutput {
     CANTalon shooter;

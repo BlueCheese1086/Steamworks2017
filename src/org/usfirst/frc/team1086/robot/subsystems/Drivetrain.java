@@ -1,5 +1,5 @@
 
-package org.usfirst.frc.team1086.robot;
+package org.usfirst.frc.team1086.robot.subsystems;
 
 
 import com.ctre.CANTalon;
@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import org.usfirst.frc.team1086.robot.RobotMap;
 
 public class Drivetrain implements PIDSource, PIDOutput {
     CANTalon leftFrontMecanum, rightFrontMecanum, leftRearMecanum, rightRearMecanum;
@@ -81,6 +82,9 @@ public class Drivetrain implements PIDSource, PIDOutput {
     }
     public double getTurnPower(){
         return controller.get();
+    }
+    public PIDController getController(){
+        return controller;
     }
     public double normalizeAngle(double d){
         double ang = (d % 360 + 360 % 360);

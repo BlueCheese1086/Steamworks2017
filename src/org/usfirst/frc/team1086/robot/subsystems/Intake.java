@@ -1,7 +1,8 @@
 
-package org.usfirst.frc.team1086.robot;
+package org.usfirst.frc.team1086.robot.subsystems;
 
 import com.ctre.CANTalon;
+import org.usfirst.frc.team1086.robot.RobotMap;
 
 public class Intake {
     CANTalon intake;
