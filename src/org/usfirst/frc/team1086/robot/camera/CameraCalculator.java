@@ -36,16 +36,16 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
     }
     public void calculateAngle(){
         if(visionObjects.isEmpty()){
-            angle = Math.PI;
+            angle = 180;
         } else {
-            double midX = visionObjects.stream().mapToDouble(p -> p.centerX / visionObjects.size()).sum();
+            double midX = 2 * visionObjects.stream().mapToDouble(p -> p.centerX / visionObjects.size()).sum();
             double horizontalAngle = Math.PI / 2 - getXAngle(midX);
             double f = Math.sqrt(
                             distance * distance + Math.pow(Constants.CAMERA_HORIZONTAL_OFFSET, 2)
                                             - 2 * distance * Constants.CAMERA_HORIZONTAL_OFFSET * Math.cos(horizontalAngle));
             double c = Math.asin(Constants.CAMERA_HORIZONTAL_OFFSET * Math.sin(horizontalAngle) / f);
             double b = Math.PI - horizontalAngle - c;
-            angle = (Math.PI / 2 - b) - Constants.CAMERA_HORIZONTAL_ANGLE;
+            angle = ((Math.PI / 2 - b) - Constants.CAMERA_HORIZONTAL_ANGLE) * 180.0 / Math.PI;
         }
     }
     public double getXAngle(double x){

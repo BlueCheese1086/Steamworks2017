@@ -79,7 +79,7 @@ public class ImageProcessing {
         double filterContoursMinRatio = 0;
         double filterContoursMaxRatio = 1000;
         filterContours(filterContoursContours, filterContoursMinArea, filterContoursMinPerimeter, filterContoursMinWidth, filterContoursMaxWidth, filterContoursMinHeight, filterContoursMaxHeight, filterContoursSolidity, filterContoursMaxVertices, filterContoursMinVertices, filterContoursMinRatio, filterContoursMaxRatio, filterContoursOutput);
-        handler.handle(filterContoursContours);
+        handler.handle(filterContoursOutput);
     }
     private void hsvThreshold(Mat input, double[] hue, double[] sat, double[] val, Mat out){
         Imgproc.cvtColor(input, out, Imgproc.COLOR_BGR2HSV);

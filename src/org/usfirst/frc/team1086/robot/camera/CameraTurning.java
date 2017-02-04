@@ -11,13 +11,13 @@ public class CameraTurning implements PIDOutput, CVDataHandler {
     PIDController turnController;
     PIDController driveController;
     TargetType tt = TargetType.BOILER;
-    double kPturn = 0;
+    double kPturn = -0.017;
     double kIturn = 0;
-    double kDturn = 0;
+    double kDturn = -0.012;
     double kPdrive = 0;
     double kIdrive = 0;
     double kDdrive = 0;
-    static double kToleranceDegrees = 2.0;
+    static double kToleranceDegrees = 0.5;
     static double kToleranceDistance = 0.1;
     double pidTurn;
     double pidDrive;
@@ -41,17 +41,19 @@ public class CameraTurning implements PIDOutput, CVDataHandler {
         driveController.setContinuous(false);
         driveController.enable();
         turnController = new PIDController(kPturn, kIturn, kDturn, tt.c, this);
-        turnController.setInputRange(-Math.PI, Math.PI);
-        turnController.setOutputRange(-1, 1);
+        turnController.setInputRange(-33, 33);
+        turnController.setOutputRange(-0.5, 0.5);
         turnController.setAbsoluteTolerance(kToleranceDegrees);
-        turnController.setContinuous(true);
+        turnController.setContinuous(false);
         turnController.enable();
     }
     public TargetType getTargetType(){
         return tt;
     }
     public double turnToAngle(){
-        return pidTurn;
+        if(!turnController.isEnabled())
+            turnController.enable();
+        return turnController.get();
     }
     public double getDrivePower(){
         return pidDrive;
