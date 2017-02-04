@@ -23,6 +23,8 @@ public class Robot extends IterativeRobot {
     ImageProcessing imageProcessing;
     Intake intake;
     Climber climber;
+    boolean buttonDown = false;
+    boolean backward = false;
     @Override public void robotInit(){
         drive = new Drivetrain();
         leftStick = new Joystick(RobotMap.LEFT_STICK);
@@ -92,11 +94,15 @@ public class Robot extends IterativeRobot {
     @Override public void autonomousPeriodic(){}
     @Override public void teleopInit(){}
     @Override public void teleopPeriodic(){
+        if(!buttonDown && leftStick.getRawButton(2))
+            backward = !backward;
+        buttonDown = leftStick.getRawButton(2);
+        int mult = backward ? -1 : 1;
         if(leftStick.getRawButton(ButtonMap.SAFETY_DRIVE)){
             if(!rightStick.getRawButton(ButtonMap.GYRO_DRIVE))
-                drive.drive(leftStick.getY(), leftStick.getX(), rightStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
+                drive.drive(leftStick.getY() * mult, leftStick.getX() * mult, rightStick.getX() * mult, rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
             else
-                drive.gyroDrive(leftStick.getY(), leftStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
+                drive.gyroDrive(leftStick.getY() * mult, leftStick.getX() * mult, rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         }
         else drive.drive(0, 0, 0, rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         if(auxiliaryStick.getRawButton(ButtonMap.SHOOT)){
