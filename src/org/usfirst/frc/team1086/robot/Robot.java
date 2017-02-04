@@ -100,9 +100,9 @@ public class Robot extends IterativeRobot {
         int mult = backward ? -1 : 1;
         if(leftStick.getRawButton(ButtonMap.SAFETY_DRIVE)){
             if(!rightStick.getRawButton(ButtonMap.GYRO_DRIVE))
-                drive.drive(leftStick.getY() * mult, leftStick.getX() * mult, rightStick.getX() * mult, rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
+                drive.drive(leftStick.getY() * mult, leftStick.getX() * mult, rightStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
             else
-                drive.gyroDrive(leftStick.getY() * mult, leftStick.getX() * mult, rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
+                drive.gyroDrive(leftStick.getY() * mult, leftStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         }
         else drive.drive(0, 0, 0, rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         if(auxiliaryStick.getRawButton(ButtonMap.SHOOT)){
