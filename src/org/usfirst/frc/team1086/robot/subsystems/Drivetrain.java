@@ -15,7 +15,7 @@ import org.usfirst.frc.team1086.robot.RobotMap;
 public class Drivetrain implements PIDSource, PIDOutput {
     CANTalon leftFrontMecanum, rightFrontMecanum, leftRearMecanum, rightRearMecanum;
     CANTalon leftFrontColson, rightFrontColson, leftRearColson, rightRearColson;
-    Solenoid leftTrigger, rightTrigger;
+    Solenoid trigger;
     Gyro gyro;
     PIDController controller = new PIDController(0, 0, 0, this, this);
     double targetAngle = 0;
@@ -29,13 +29,11 @@ public class Drivetrain implements PIDSource, PIDOutput {
         leftRearColson = new CANTalon(RobotMap.LEFT_REAR_COLSON);
         rightFrontColson = new CANTalon(RobotMap.RIGHT_FRONT_COLSON);
         rightRearColson = new CANTalon(RobotMap.RIGHT_REAR_COLSON);
-        leftTrigger = new Solenoid(RobotMap.LEFT_TRIGGER);
-        rightTrigger = new Solenoid(RobotMap.RIGHT_TRIGGER);
+        trigger = new Solenoid(RobotMap.TRIGGER);
         gyro = new AnalogGyro(RobotMap.GYRO);
     }
     public void drive(double leftY, double leftX, double rightX, boolean trigger){
-        leftTrigger.set(trigger);
-        rightTrigger.set(trigger);
+        this.trigger.set(trigger);
         targetAngle = getGyroAngle();
         if(!trigger){
             mecanum(leftY, leftX, rightX);
@@ -50,14 +48,13 @@ public class Drivetrain implements PIDSource, PIDOutput {
         rightRearMecanum.set(leftY - rightX - leftX);
     }
     public void colson(double leftY, double rightX){
-            leftFrontMecanum.set(leftY + rightX);
-            rightFrontMecanum.set(leftY - rightX);
-            leftRearMecanum.set(leftY + rightX);
-            rightRearMecanum.set(leftY - rightX);
+        leftFrontMecanum.set(leftY + rightX);
+        rightFrontMecanum.set(leftY - rightX);
+        leftRearMecanum.set(leftY + rightX);
+        rightRearMecanum.set(leftY - rightX);
     }
     public void gyroDrive(double leftY, double leftX, boolean trigger){
-        leftTrigger.set(trigger);
-        rightTrigger.set(trigger);
+        this.trigger.set(trigger);
         if(!gyroEnabled){
             setAngle(gyro.getAngle());
             gyroEnabled = true;
@@ -71,11 +68,11 @@ public class Drivetrain implements PIDSource, PIDOutput {
     public void setAngle(double d){
         targetAngle = normalizeAngle(d);
         controller.setSetpoint(targetAngle);
-        controller.enable();
         controller.setContinuous();
         controller.setInputRange(-180, 180);
         controller.setOutputRange(-1, 1);
-        controller.setTolerance(5);
+        controller.setAbsoluteTolerance(1);
+        controller.enable();
     }
     public double getGyroAngle(){
         return normalizeAngle(gyro.getAngle());
