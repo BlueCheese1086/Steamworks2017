@@ -95,13 +95,11 @@ public class CameraTurning implements PIDOutput, CVDataHandler {
         }
         @Override
         public PIDSourceType getPIDSourceType() {
-                // TODO Auto-generated method stub
-                return PIDSourceType.kDisplacement;
+            return PIDSourceType.kDisplacement;
         }
         @Override
         public double pidGet() {
-                // TODO Auto-generated method stub
-                return c.angle;
+            return c.angle;
         }
     }
     @Override public void handle(ArrayList<MatOfPoint> m){

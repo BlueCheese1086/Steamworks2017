@@ -90,7 +90,7 @@ public class ImageProcessing {
         Mat hierarchy = new Mat();
         contours.clear();
         int mode;
-        if (externalOnly) {
+        if(externalOnly){
             mode = Imgproc.RETR_EXTERNAL;
         } else {
             mode = Imgproc.RETR_LIST;
