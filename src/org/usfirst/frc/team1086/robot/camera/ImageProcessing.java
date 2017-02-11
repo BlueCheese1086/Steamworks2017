@@ -31,12 +31,12 @@ public class ImageProcessing {
     }
     public void start(){
         new Thread(() -> {
-            AxisCamera camera = CameraServer.getInstance().addAxisCamera("10.10.86.21");
-            camera.setResolution(640, 480);
+            AxisCamera camera = CameraServer.getInstance().addAxisCamera("10.10.86.22");
+            camera.setResolution(320, 240);
             CameraServer.getInstance().startAutomaticCapture(camera);
             CvSink cvSink = CameraServer.getInstance().getVideo();
-            CvSource outputVideo = CameraServer.getInstance().putVideo("Target Only", 640, 480);
-            CvSource rawInput = CameraServer.getInstance().putVideo("Raw Video", 640, 480);
+            CvSource outputVideo = CameraServer.getInstance().putVideo("Target Only", 320, 240);
+            CvSource rawInput = CameraServer.getInstance().putVideo("Raw Video", 320, 240);
             Mat source = new Mat();
             Mat output = new Mat();
             while (true) {
@@ -53,9 +53,9 @@ public class ImageProcessing {
     public void openCVProcess(Mat source, Mat output){
         //HSV
         Mat hsvThresholdInput = source;
-        double[] hsvThresholdHue = {67.98561151079137, 126.24573378839587};
-        double[] hsvThresholdSaturation = {4.586330935251798, 117.92662116040952};
-        double[] hsvThresholdValue = {126.12410071942448, 255.0};
+        double[] hsvThresholdHue = {49, 88};
+        double[] hsvThresholdSaturation = {231, 255};
+        double[] hsvThresholdValue = {30, 248};
         hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, output);
 
         hsvThresholdOutput = output.clone();
@@ -67,13 +67,13 @@ public class ImageProcessing {
 
         //FILTER CONTOURS
         ArrayList<MatOfPoint> filterContoursContours = findContoursOutput;
-        double filterContoursMinArea = 75.0;
-        double filterContoursMinPerimeter = 75.0;
-        double filterContoursMinWidth = 50.0;
+        double filterContoursMinArea = 20;
+        double filterContoursMinPerimeter = 0.0;
+        double filterContoursMinWidth = 0;
         double filterContoursMaxWidth = 700.0;
         double filterContoursMinHeight = 0;
         double filterContoursMaxHeight = 1000;
-        double[] filterContoursSolidity = {9.892086330935252, 100.0};
+        double[] filterContoursSolidity = {0, 100.0};
         double filterContoursMaxVertices = 1000000;
         double filterContoursMinVertices = 0;
         double filterContoursMinRatio = 0;

@@ -29,6 +29,9 @@ public class AutonomousCommander {
                 next();
         }, () -> {});
     }
+    public void addSection(AutonomousRoutine ar){
+    	addSection(() -> { return false; }, () -> { ar.begin(); });
+    }
     public void addSection(double time, Runnable ru, Runnable start){
         sectionTimes.put(sectionTimes.size(), time);
         sectionActions.put(sectionActions.size(), ru);
@@ -50,7 +53,7 @@ public class AutonomousCommander {
             System.out.println("WARNING: Autonomous duration exceeds 15 seconds");
         sectionTimes.put(sectionTimes.size(), Double.POSITIVE_INFINITY);
         sectionActions.put(sectionActions.size(), () -> stop());
-        sectionStartActions.put(sectionActions.size(), () -> stop());
+        sectionStartActions.put(sectionStartActions.size(), () -> stop());
         goToSection(0);
         started = true;
         manager.start();

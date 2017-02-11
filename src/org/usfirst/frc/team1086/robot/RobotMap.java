@@ -12,6 +12,7 @@ public class RobotMap {
     public static final int INTAKE = 10;
     public static final int CLIMB1 = 11; 
     public static final int CLIMB2 = 12; 
+    public static final int AGITATOR = 13;
 
     public static final int TRIGGER = 1;
     
