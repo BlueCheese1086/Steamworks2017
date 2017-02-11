@@ -25,7 +25,8 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
         if(visionObjects.isEmpty()){
             distance = -1;
         } else {
-            double midY = visionObjects.stream().mapToDouble(p -> p.centerY / visionObjects.size()).sum();
+            double midY = visionObjects.stream().mapToDouble(p -> (p.centerY + p.height / 2) / (visionObjects.size())).sum();
+            double avgH = visionObjects.stream().mapToDouble(p -> (p.height) / (visionObjects.size())).sum();
             double angleFromCameraToTarget = getYAngle(midY);
             double verticalAngle = angleFromCameraToTarget + Constants.CAMERA_VERTICAL_ANGLE;
             double changeInY = TARGET_HEIGHT - Constants.CAMERA_ELEVATION;
@@ -38,7 +39,7 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
         if(visionObjects.isEmpty()){
             angle = 180;
         } else {
-            double midX = 2 * visionObjects.stream().mapToDouble(p -> p.centerX / visionObjects.size()).sum();
+            double midX = visionObjects.stream().mapToDouble(p -> p.centerX / visionObjects.size()).sum();
             double horizontalAngle = Math.PI / 2 - getXAngle(midX);
             double f = Math.sqrt(
                             distance * distance + Math.pow(Constants.CAMERA_HORIZONTAL_OFFSET, 2)

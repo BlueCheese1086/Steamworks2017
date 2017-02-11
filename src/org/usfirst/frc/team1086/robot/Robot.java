@@ -23,6 +23,7 @@ public class Robot extends IterativeRobot {
     ImageProcessing imageProcessing;
     Intake intake;
     Climber climber;
+    Agitator agitator;
     boolean buttonDown = false;
     boolean backward = false;
     @Override public void robotInit(){
@@ -120,6 +121,12 @@ public class Robot extends IterativeRobot {
         }
         else {
             climber.stop();
+        }
+        if(auxiliaryStick.getRawButton(ButtonMap.AGITATE)){
+            agitator.agitate();
+        }
+        else { 
+            agitator.stop();
         }
     }
     @Override public void testPeriodic(){}
