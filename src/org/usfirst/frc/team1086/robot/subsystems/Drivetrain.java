@@ -2,23 +2,26 @@
 package org.usfirst.frc.team1086.robot.subsystems;
 
 import com.ctre.CANTalon;
-import edu.wpi.first.wpilibj.AnalogGyro;
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import org.usfirst.frc.team1086.robot.RobotMap;
 
-public class Drivetrain implements PIDSource, PIDOutput {
+public class Drivetrain {
     CANTalon leftFrontMecanum, rightFrontMecanum, leftRearMecanum, rightRearMecanum;
     CANTalon leftFrontColson, rightFrontColson, leftRearColson, rightRearColson;
     Solenoid trigger;
-    Gyro gyro;
-    PIDController controller = new PIDController(0, 0, 0, this, this);
-    double targetAngle = 0;
-    boolean gyroEnabled = false;
+    Gyro navX;
+    //PIDController controller = new PIDController(0, 0, 0, this, this);
+    PIDController turnToAngleController;
+    PIDController driveStraightController;
+    double turnToAngleOutput;
+    double driveStraightOutput;
+    boolean turnToAngle = false;
+    boolean driveStraight = false;
     public Drivetrain(){
         leftFrontMecanum = new CANTalon(RobotMap.LEFT_FRONT_MECANUM);
         leftRearMecanum = new CANTalon(RobotMap.LEFT_REAR_MECANUM);
@@ -29,17 +32,52 @@ public class Drivetrain implements PIDSource, PIDOutput {
         rightFrontColson = new CANTalon(RobotMap.RIGHT_FRONT_COLSON);
         rightRearColson = new CANTalon(RobotMap.RIGHT_REAR_COLSON);
         trigger = new Solenoid(RobotMap.TRIGGER);
-        gyro = new AnalogGyro(RobotMap.GYRO);
+        navX = new Gyro();
+        turnToAngleController = new PIDController(0, 0, 0, navX, v -> turnToAngleOutput = v);
+        driveStraightController = new PIDController(0, 0, 0, navX, v -> turnToAngleOutput = v);
     }
     public void drive(double leftY, double leftX, double rightX, boolean trigger){
         this.trigger.set(trigger);
-        targetAngle = getGyroAngle();
+        //targetAngle = getGyroAngle();
         if(!trigger){
             mecanum(leftY, leftX, rightX);
         } else {
             colson(leftY, rightX);
         }
     }
+    public Gyro getGyro(){
+        return navX;
+    }
+    public void setTurnToAngle(double angle){
+        if(!turnToAngle){
+            turnToAngleController.setSetpoint(angle);
+            turnToAngleController.setAbsoluteTolerance(0.5);
+            turnToAngleController.setContinuous(true);
+            turnToAngleController.setInputRange(-180, 180);
+            turnToAngleController.setOutputRange(-1, 1);
+            turnToAngleController.enable();
+            turnToAngle = true;
+        }
+    }
+    public void startDriveStraight(){
+        if(!driveStraight){
+            navX.reset();
+            driveStraightController.setSetpoint(0);
+            driveStraightController.setAbsoluteTolerance(0.5);
+            driveStraightController.setContinuous(true);
+            driveStraightController.setInputRange(-180, 180);
+            driveStraightController.setOutputRange(-1, 1);
+            driveStraightController.enable();
+            driveStraight = true;
+        }
+    }
+    public double getTurnPower(){
+        if(turnToAngle)
+            return turnToAngleOutput;
+        else
+            return driveStraightOutput;
+    }
+    
     public void mecanum(double leftY, double leftX, double rightX){
         leftFrontMecanum.set(leftY - rightX - leftX);
         rightFrontMecanum.set(leftY + rightX + leftX);
@@ -53,45 +91,30 @@ public class Drivetrain implements PIDSource, PIDOutput {
         rightRearMecanum.set(leftY + rightX);
     }
     public void gyroDrive(double leftY, double leftX, boolean trigger){
-        this.trigger.set(trigger);
+        /*this.trigger.set(trigger);
         if(!gyroEnabled){
-            setAngle(gyro.getAngle());
+            setAngle(navX.getAngle());
             gyroEnabled = true;
         }
         if(!trigger){
             mecanum(leftY, leftX, getTurnPower());
         } else {
             colson(leftX, getTurnPower());
-        }
+        }*/
     }
-    public void setAngle(double d){
-        targetAngle = normalizeAngle(d);
-        controller.setSetpoint(targetAngle);
-        controller.setContinuous();
-        controller.setInputRange(-180, 180);
-        controller.setOutputRange(-1, 1);
-        controller.setAbsoluteTolerance(1);
-        controller.enable();
+    public PIDController getActiveController(){
+        if(turnToAngle)
+            return turnToAngleController;
+        else if(driveStraight)
+            return driveStraightController;
+        else
+            return null;
     }
     public double getGyroAngle(){
-        return normalizeAngle(gyro.getAngle());
-    }
-    public double getTurnPower(){
-        return controller.get();
-    }
-    public PIDController getController(){
-        return controller;
+        return normalizeAngle(navX.getAngle());
     }
     public double normalizeAngle(double d){
         double ang = (d % 360 + 360 % 360);
         return ang > 180 ? ang - 360 : ang;
     }
-    @Override public void setPIDSourceType(PIDSourceType pidSource){}
-    @Override public PIDSourceType getPIDSourceType(){
-        return PIDSourceType.kDisplacement;
-    }
-    @Override public double pidGet(){
-        return getGyroAngle();
-    }
-    @Override public void pidWrite(double output){}
 }
