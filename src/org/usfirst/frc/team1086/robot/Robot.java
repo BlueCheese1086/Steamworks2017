@@ -2,6 +2,8 @@ package org.usfirst.frc.team1086.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.HashMap;
 import org.usfirst.frc.team1086.robot.autonomous.*;
 import org.usfirst.frc.team1086.robot.subsystems.*;
@@ -18,6 +20,8 @@ public class Robot extends IterativeRobot {
     AutonomousRoutine easyGear;
     AutonomousRoutine leftGear;
     AutonomousRoutine rightGear;
+    AutonomousRoutine loganChaser, basicGear, LeftGear, RightGear;
+    AutonomousRoutine selectedAuto;
     CameraTurning targetFinder;
     Shooter flyWheel;
     ImageProcessing imageProcessing;
@@ -26,6 +30,7 @@ public class Robot extends IterativeRobot {
     Agitator agitator;
     boolean buttonDown = false;
     boolean backward = false;
+    SendableChooser <AutonomousRoutine> chooser = new SendableChooser<>();
     @Override public void robotInit(){
         drive = new Drivetrain();
         leftStick = new Joystick(RobotMap.LEFT_STICK);
@@ -36,6 +41,9 @@ public class Robot extends IterativeRobot {
         intake = new Intake();
         climber = new Climber();
         agitator = new Agitator();
+        chooser.addDefault("Logan Chaser", easyGear);
+        chooser.addObject("RightGear", rightGear);
+        chooser.addObject("Left Gear", leftGear);
         //imageProcessing = new ImageProcessing();
         //imageProcessing.setCameraTarget(targetFinder);
         //imageProcessing.start();
@@ -93,7 +101,7 @@ public class Robot extends IterativeRobot {
         };
     }
     @Override public void autonomousInit(){
-        easyGear.begin();
+        chooser.getSelected().begin();
     }
     @Override public void autonomousPeriodic(){}
     @Override public void teleopInit(){}
