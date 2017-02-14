@@ -56,7 +56,9 @@ public class AutonomousCommander {
         sectionStartActions.put(sectionStartActions.size(), () -> stop());
         goToSection(0);
         started = true;
-        manager.start();
+        if (!manager.isAlive()) {
+            manager.start();
+        }
     }
     public void stop(){
         started = false;
