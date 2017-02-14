@@ -1,7 +1,6 @@
 
 package org.usfirst.frc.team1086.robot.subsystems;
 
-
 import com.ctre.CANTalon;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.PIDController;
@@ -42,16 +41,24 @@ public class Drivetrain implements PIDSource, PIDOutput {
         }
     }
     public void mecanum(double leftY, double leftX, double rightX){
-        leftFrontMecanum.set(leftY + rightX - leftX);
-        rightFrontMecanum.set(leftY - rightX + leftX);
-        leftRearMecanum.set(leftY + rightX + leftX);
-        rightRearMecanum.set(leftY - rightX - leftX);
+        leftFrontMecanum.set(leftY - rightX - leftX);
+        leftFrontColson.set(leftY - rightX - leftX);
+        rightFrontMecanum.set(leftY + rightX + leftX);
+        rightFrontColson.set(leftY + rightX + leftX);
+        leftRearMecanum.set(leftY - rightX + leftX);
+        leftRearColson.set(leftY - rightX + leftX);
+        rightRearMecanum.set(leftY + rightX - leftX);
+        rightRearColson.set(leftY + rightX - leftX);
     }
     public void colson(double leftY, double rightX){
-        leftFrontMecanum.set(leftY + rightX);
-        rightFrontMecanum.set(leftY - rightX);
-        leftRearMecanum.set(leftY + rightX);
-        rightRearMecanum.set(leftY - rightX);
+        leftFrontMecanum.set(leftY - rightX);
+        leftFrontColson.set(leftY - rightX);
+        rightFrontMecanum.set(leftY + rightX);
+        rightFrontColson.set(leftY + rightX);
+        leftRearMecanum.set(leftY - rightX);
+        leftRearColson.set(leftY - rightX);
+        rightRearMecanum.set(leftY + rightX);
+        rightRearColson.set(leftY + rightX);
     }
     public void gyroDrive(double leftY, double leftX, boolean trigger){
         this.trigger.set(trigger);

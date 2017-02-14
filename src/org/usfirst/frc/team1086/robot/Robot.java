@@ -33,10 +33,13 @@ public class Robot extends IterativeRobot {
         auxiliaryStick = new Joystick(RobotMap.AUXILIARY_STICK);
         targetFinder = new CameraTurning();
         flyWheel = new Shooter();
-        imageProcessing = new ImageProcessing();
-        imageProcessing.setCameraTarget(targetFinder);
-        imageProcessing.start();
-        defineAutonomousActions();
+        intake = new Intake();
+        climber = new Climber();
+        agitator = new Agitator();
+        //imageProcessing = new ImageProcessing();
+        //imageProcessing.setCameraTarget(targetFinder);
+        //imageProcessing.start();
+        //defineAutonomousActions();
     }
     public void defineAutonomousActions(){
         actions.put("Drive Forward", () -> drive.drive( 1, 0, 0, false));
