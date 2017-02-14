@@ -1,7 +1,9 @@
 package org.usfirst.frc.team1086.robot;
 
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SerialPort;
 import java.util.HashMap;
 import org.usfirst.frc.team1086.robot.autonomous.*;
 import org.usfirst.frc.team1086.robot.subsystems.*;
@@ -24,6 +26,7 @@ public class Robot extends IterativeRobot {
     Intake intake;
     Climber climber;
     Agitator agitator;
+    AHRS navX;
     boolean buttonDown = false;
     boolean backward = false;
     @Override public void robotInit(){
@@ -37,6 +40,11 @@ public class Robot extends IterativeRobot {
         imageProcessing.setCameraTarget(targetFinder);
         imageProcessing.start();
         defineAutonomousActions();
+        
+        try {
+            navX = new AHRS(SerialPort.Port.kMXP);
+        } catch(Exception e) {e.printStackTrace();}
+        
     }
     public void defineAutonomousActions(){
         actions.put("Drive Forward", () -> drive.drive( 1, 0, 0, false));
