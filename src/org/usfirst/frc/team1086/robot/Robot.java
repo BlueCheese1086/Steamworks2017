@@ -2,8 +2,10 @@ package org.usfirst.frc.team1086.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.util.HashMap;
 import org.usfirst.frc.team1086.robot.autonomous.*;
+import org.usfirst.frc.team1086.robot.subsystems.*;
 import org.usfirst.frc.team1086.robot.camera.*;
 
 public class Robot extends IterativeRobot {
@@ -14,13 +16,20 @@ public class Robot extends IterativeRobot {
     HashMap<String, Runnable> actions = new HashMap();
     HashMap<String, Runnable> startActions = new HashMap();
     HashMap<String, Action> endActions = new HashMap();
-    AutonomousRoutine getToGear;
+    AutonomousRoutine easyGear;
+    AutonomousRoutine leftGear;
+    AutonomousRoutine rightGear;
+    AutonomousRoutine selectedAuto;
     CameraTurning targetFinder;
     Shooter flyWheel;
     ImageProcessing imageProcessing;
     Intake intake;
-    Climber motor1;
-    Climber motor2;
+    Climber climber;
+    Agitator agitator;
+    Gyro navX;
+    SendableChooser <AutonomousRoutine> chooser = new SendableChooser<>();
+    boolean buttonDown = false;
+    boolean backward = false;
     @Override public void robotInit(){
         drive = new Drivetrain();
         leftStick = new Joystick(RobotMap.LEFT_STICK);
@@ -28,22 +37,29 @@ public class Robot extends IterativeRobot {
         auxiliaryStick = new Joystick(RobotMap.AUXILIARY_STICK);
         targetFinder = new CameraTurning();
         flyWheel = new Shooter();
+        intake = new Intake();
+        climber = new Climber();
+        agitator = new Agitator();
+        chooser.addDefault("Logan Chaser", easyGear);
+        chooser.addObject("RightGear", rightGear);
+        chooser.addObject("Left Gear", leftGear);
         imageProcessing = new ImageProcessing();
         imageProcessing.setCameraTarget(targetFinder);
+        imageProcessing.start();
         defineAutonomousActions();
     }
     public void defineAutonomousActions(){
         actions.put("Drive Forward", () -> drive.drive( 1, 0, 0, false));
         actions.put("Drive Backwards", () -> drive.drive(-1, 0, 0, false));
-        startActions.put("Set Target Turn To 90 Degrees", () -> {
-            drive.setAngle(drive.getGyroAngle() + 90);
+        startActions.put("Set Target Turn To 60 Degrees", () -> {
+            drive.setTurnToAngle(drive.getGyro().getAngle() + 60);
         });
-        startActions.put("Set Target Turn To 270 Degrees", () -> {
-            drive.setAngle(drive.getGyroAngle() - 90);
+        startActions.put("Set Target Turn To 300 Degrees", () -> {
+            drive.setTurnToAngle(drive.getGyro().getAngle() - 60);
         });
         endActions.put("Turn To Target Angle", () -> {
-            drive.drive(0, 0, drive.controller.get(), false);
-            return drive.controller.onTarget();
+            drive.drive(0, 0, drive.getTurnPower(), false);
+            return drive.getActiveController().onTarget();
         });
         endActions.put("Turn To Boiler", () -> {
             if(targetFinder.getTargetType() != CameraTurning.TargetType.BOILER)
@@ -63,40 +79,64 @@ public class Robot extends IterativeRobot {
             drive.drive(targetFinder.getDrivePower(), 0, targetFinder.turnToAngle(), false);
             return targetFinder.turnToAngle() == 0;
         });
-        getToGear = new AutonomousRoutine(){
+        easyGear = new AutonomousRoutine(){
             @Override public void init(){
-                addSection(1000, actions.get("Drive Forward"));
-                addSection(endActions.get("Turn To Angle"), startActions.get("Set Target Turn To 90 Degrees"));
-                addSection(1000, actions.get("Drive Forward"));
-                addSection(endActions.get("Turn To Angle"), startActions.get("Set Target Turn To 270 Degrees"));
+                addSection(endActions.get("Drive To Gear"));
+            }
+        };
+        leftGear = new AutonomousRoutine(){
+            @Override public void init(){
+                addSection(2000, actions.get("Drive Forward"));
+                addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 60 Degrees"));
+                addSection(endActions.get("Drive To Gear"));
+            }
+        };
+        rightGear = new AutonomousRoutine(){
+            @Override public void init(){
+                addSection(2000, actions.get("Drive Forward"));
+                addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 300 Degrees"));
                 addSection(endActions.get("Drive To Gear"));
             }
         };
     }
     @Override public void autonomousInit(){
-        getToGear.begin();
+        chooser.getSelected().begin();
     }
     @Override public void autonomousPeriodic(){}
-    @Override public void teleopInit(){
-    	imageProcessing.start();
-    }
+    @Override public void teleopInit(){}
     @Override public void teleopPeriodic(){
-        if(leftStick.getRawButton(1)){
-            if(!rightStick.getRawButton(2))
-                drive.drive(leftStick.getY(), leftStick.getX(), rightStick.getX(), rightStick.getRawButton(1));
+        if(!buttonDown && leftStick.getRawButton(2))
+            backward = !backward;
+        buttonDown = leftStick.getRawButton(2);
+        int mult = backward ? -1 : 1;
+        if(leftStick.getRawButton(ButtonMap.SAFETY_DRIVE)){
+            if(!rightStick.getRawButton(ButtonMap.GYRO_DRIVE))
+                drive.drive(leftStick.getY() * mult, leftStick.getX() * mult, rightStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
             else
-                drive.gyroDrive(leftStick.getY(), leftStick.getX(), rightStick.getRawButton(1));
+                drive.gyroDrive(leftStick.getY() * mult, leftStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         }
-        else drive.drive(0, 0, 0, rightStick.getRawButton(1));
+        else drive.drive(0, 0, 0, rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         if(auxiliaryStick.getRawButton(ButtonMap.SHOOT)){
             flyWheel.shoot();
         }
         if(auxiliaryStick.getRawButton(ButtonMap.COLLECT)){
             intake.motorIn();
+        } 
+        else {
+            intake.motorOff();
         }
+        
         if(auxiliaryStick.getRawButton(ButtonMap.CLIMB)){
-             motor1.climb();
-             motor2.climb();
+            climber.climb();
+        }
+        else {
+            climber.stop();
+        }
+        if(auxiliaryStick.getRawButton(ButtonMap.AGITATE)){
+            agitator.agitate();
+        }
+        else { 
+            agitator.stop();
         }
     }
     @Override public void testPeriodic(){}
