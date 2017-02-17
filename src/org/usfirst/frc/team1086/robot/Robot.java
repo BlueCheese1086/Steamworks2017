@@ -43,10 +43,10 @@ public class Robot extends IterativeRobot {
         chooser.addDefault("Logan Chaser", easyGear);
         chooser.addObject("RightGear", rightGear);
         chooser.addObject("Left Gear", leftGear);
-        //imageProcessing = new ImageProcessing();
-        //imageProcessing.setCameraTarget(targetFinder);
-        //imageProcessing.start();
-        //defineAutonomousActions();
+        imageProcessing = new ImageProcessing();
+        imageProcessing.setCameraTarget(targetFinder);
+        imageProcessing.start();
+        defineAutonomousActions();
     }
     public void defineAutonomousActions(){
         actions.put("Drive Forward", () -> drive.drive( 1, 0, 0, false));
