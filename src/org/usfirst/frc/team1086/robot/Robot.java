@@ -1,9 +1,8 @@
 package org.usfirst.frc.team1086.robot;
 
-import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.util.HashMap;
 import org.usfirst.frc.team1086.robot.autonomous.*;
 import org.usfirst.frc.team1086.robot.subsystems.*;
@@ -44,10 +43,10 @@ public class Robot extends IterativeRobot {
         chooser.addDefault("Logan Chaser", easyGear);
         chooser.addObject("RightGear", rightGear);
         chooser.addObject("Left Gear", leftGear);
-        //imageProcessing = new ImageProcessing();
-        //imageProcessing.setCameraTarget(targetFinder);
-        //imageProcessing.start();
-        //defineAutonomousActions();
+        imageProcessing = new ImageProcessing();
+        imageProcessing.setCameraTarget(targetFinder);
+        imageProcessing.start();
+        defineAutonomousActions();
     }
     public void defineAutonomousActions(){
         actions.put("Drive Forward", () -> drive.drive( 1, 0, 0, false));
