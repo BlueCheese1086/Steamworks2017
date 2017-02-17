@@ -4,6 +4,7 @@ package org.usfirst.frc.team1086.robot.subsystems;
 import com.ctre.CANTalon;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.usfirst.frc.team1086.robot.RobotMap;
 
 public class Drivetrain {
@@ -121,5 +122,8 @@ public class Drivetrain {
     }
     public double getGyroAngle(){
         return navX.getNormalizedAngle();
+    }
+    public void outputPIDData(){
+        SmartDashboard.putNumber("PID Turn Rate", getTurnPower());
     }
 }

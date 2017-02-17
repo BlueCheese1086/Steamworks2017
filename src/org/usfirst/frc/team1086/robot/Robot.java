@@ -113,6 +113,7 @@ public class Robot extends IterativeRobot {
     @Override public void autonomousPeriodic(){}
     @Override public void teleopInit(){}
     @Override public void teleopPeriodic(){
+        outputData();
         if(!buttonDown && leftStick.getRawButton(2))
             backward = !backward;
         buttonDown = leftStick.getRawButton(2);
@@ -148,4 +149,9 @@ public class Robot extends IterativeRobot {
         }
     }
     @Override public void testPeriodic(){}
+    private void outputData(){
+        navX.outputData();
+        drive.outputPIDData();
+        targetFinder.outputData();
+    }
 }
