@@ -2,6 +2,7 @@ package org.usfirst.frc.team1086.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.util.HashMap;
 import org.usfirst.frc.team1086.robot.autonomous.*;
 import org.usfirst.frc.team1086.robot.subsystems.*;
@@ -18,12 +19,15 @@ public class Robot extends IterativeRobot {
     AutonomousRoutine easyGear;
     AutonomousRoutine leftGear;
     AutonomousRoutine rightGear;
+    AutonomousRoutine selectedAuto;
     CameraTurning targetFinder;
     Shooter flyWheel;
     ImageProcessing imageProcessing;
     Intake intake;
     Climber climber;
     Agitator agitator;
+    Gyro navX;
+    SendableChooser <AutonomousRoutine> chooser = new SendableChooser<>();
     boolean buttonDown = false;
     boolean backward = false;
     @Override public void robotInit(){
@@ -36,23 +40,26 @@ public class Robot extends IterativeRobot {
         intake = new Intake();
         climber = new Climber();
         agitator = new Agitator();
-        //imageProcessing = new ImageProcessing();
-        //imageProcessing.setCameraTarget(targetFinder);
-        //imageProcessing.start();
-        //defineAutonomousActions();
+        chooser.addDefault("Logan Chaser", easyGear);
+        chooser.addObject("RightGear", rightGear);
+        chooser.addObject("Left Gear", leftGear);
+        imageProcessing = new ImageProcessing();
+        imageProcessing.setCameraTarget(targetFinder);
+        imageProcessing.start();
+        defineAutonomousActions();
     }
     public void defineAutonomousActions(){
         actions.put("Drive Forward", () -> drive.drive( 1, 0, 0, false));
         actions.put("Drive Backwards", () -> drive.drive(-1, 0, 0, false));
         startActions.put("Set Target Turn To 60 Degrees", () -> {
-            drive.setAngle(drive.getGyroAngle() + 60);
+            drive.setTurnToAngle(drive.getGyro().getAngle() + 60);
         });
         startActions.put("Set Target Turn To 300 Degrees", () -> {
-            drive.setAngle(drive.getGyroAngle() - 60);
+            drive.setTurnToAngle(drive.getGyro().getAngle() - 60);
         });
         endActions.put("Turn To Target Angle", () -> {
-            drive.drive(0, 0, drive.getController().get(), false);
-            return drive.getController().onTarget();
+            drive.drive(0, 0, drive.getTurnPower(), false);
+            return drive.getActiveController().onTarget();
         });
         endActions.put("Turn To Boiler", () -> {
             if(targetFinder.getTargetType() != CameraTurning.TargetType.BOILER)
@@ -93,7 +100,7 @@ public class Robot extends IterativeRobot {
         };
     }
     @Override public void autonomousInit(){
-        easyGear.begin();
+        chooser.getSelected().begin();
     }
     @Override public void autonomousPeriodic(){}
     @Override public void teleopInit(){}
