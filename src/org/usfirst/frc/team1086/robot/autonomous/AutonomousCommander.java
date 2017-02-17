@@ -30,7 +30,12 @@ public class AutonomousCommander {
         }, () -> {});
     }
     public void addSection(AutonomousRoutine ar){
-    	addSection(() -> { return false; }, () -> { ar.begin(); });
+    	for(Integer i : ar.sectionTimes.keySet()){
+    		sectionTimes.put(i, ar.sectionTimes.get(i));
+    		sectionStartActions.put(i, ar.sectionStartActions.get(i));
+    		sectionActions.put(i, ar.sectionActions.get(i));
+    	}
+    	//addSection(() -> { return false; }, () -> { ar.begin(); });
     }
     public void addSection(double time, Runnable ru, Runnable start){
         sectionTimes.put(sectionTimes.size(), time);
