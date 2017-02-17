@@ -1,9 +1,8 @@
 package org.usfirst.frc.team1086.robot;
 
-import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.util.HashMap;
 import org.usfirst.frc.team1086.robot.autonomous.*;
 import org.usfirst.frc.team1086.robot.subsystems.*;
