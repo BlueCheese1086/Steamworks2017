@@ -1,7 +1,9 @@
 package org.usfirst.frc.team1086.robot;
 
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SerialPort;
 import java.util.HashMap;
 import org.usfirst.frc.team1086.robot.autonomous.*;
 import org.usfirst.frc.team1086.robot.subsystems.*;
@@ -24,6 +26,7 @@ public class Robot extends IterativeRobot {
     Intake intake;
     Climber climber;
     Agitator agitator;
+    Gyro navX;
     boolean buttonDown = false;
     boolean backward = false;
     @Override public void robotInit(){
@@ -45,14 +48,14 @@ public class Robot extends IterativeRobot {
         actions.put("Drive Forward", () -> drive.drive( 1, 0, 0, false));
         actions.put("Drive Backwards", () -> drive.drive(-1, 0, 0, false));
         startActions.put("Set Target Turn To 60 Degrees", () -> {
-            drive.setAngle(drive.getGyroAngle() + 60);
+            drive.setTurnToAngle(drive.getGyro().getAngle() + 60);
         });
         startActions.put("Set Target Turn To 300 Degrees", () -> {
-            drive.setAngle(drive.getGyroAngle() - 60);
+            drive.setTurnToAngle(drive.getGyro().getAngle() - 60);
         });
         endActions.put("Turn To Target Angle", () -> {
-            drive.drive(0, 0, drive.getController().get(), false);
-            return drive.getController().onTarget();
+            drive.drive(0, 0, drive.getTurnPower(), false);
+            return drive.getActiveController().onTarget();
         });
         endActions.put("Turn To Boiler", () -> {
             if(targetFinder.getTargetType() != CameraTurning.TargetType.BOILER)
