@@ -20,6 +20,7 @@ public class Robot extends IterativeRobot {
     AutonomousRoutine easyGear;
     AutonomousRoutine leftGear;
     AutonomousRoutine rightGear;
+    AutonomousRoutine selectedAuto;
     CameraTurning targetFinder;
     Shooter flyWheel;
     ImageProcessing imageProcessing;
@@ -27,6 +28,7 @@ public class Robot extends IterativeRobot {
     Climber climber;
     Agitator agitator;
     Gyro navX;
+    SendableChooser <AutonomousRoutine> chooser = new SendableChooser<>();
     boolean buttonDown = false;
     boolean backward = false;
     @Override public void robotInit(){
@@ -39,6 +41,9 @@ public class Robot extends IterativeRobot {
         intake = new Intake();
         climber = new Climber();
         agitator = new Agitator();
+        chooser.addDefault("Logan Chaser", easyGear);
+        chooser.addObject("RightGear", rightGear);
+        chooser.addObject("Left Gear", leftGear);
         //imageProcessing = new ImageProcessing();
         //imageProcessing.setCameraTarget(targetFinder);
         //imageProcessing.start();
@@ -96,7 +101,7 @@ public class Robot extends IterativeRobot {
         };
     }
     @Override public void autonomousInit(){
-        easyGear.begin();
+        chooser.getSelected().begin();
     }
     @Override public void autonomousPeriodic(){}
     @Override public void teleopInit(){}
