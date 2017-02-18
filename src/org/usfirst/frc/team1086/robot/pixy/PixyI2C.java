@@ -2,6 +2,7 @@ package org.usfirst.frc.team1086.robot.pixy;
 
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PixyI2C {
     I2C pixy;
@@ -35,25 +36,25 @@ public class PixyI2C {
                 if(syncWord != 0xaa55){ //shift back if only got 1 0xaa55
                     i -= 2;
                 }
-            }
-            checksum = convert(rawData[i+5], rawData[i+4]);
-            sig = convert(rawData[i+7], rawData[i+6]);
-            if(sig <= 0 || sig > packets.length){
-                System.out.println("Invalid sig value");
+                checksum = convert(rawData[i+5], rawData[i+4]);
+                sig = convert(rawData[i+7], rawData[i+6]);
+                if(sig <= 0 || sig > packets.length){
+                    System.out.println("Invalid sig value");
+                    break;
+                }
+                packets[sig - 1] = new PixyPacket();
+                packets[sig - 1].x = convert(rawData[i+9], rawData[i+8]);
+                packets[sig - 1].y = convert(rawData[i+11], rawData[i+10]);
+                packets[sig - 1].width = convert(rawData[i+13], rawData[i+12]);
+                packets[sig - 1].height = convert(rawData[i+15], rawData[i+14]);
+
+                if(checksum != sig + packets[sig - 1].x + packets[sig - 1].y + packets[sig - 1].width + packets[sig - 1].height){
+                    System.out.println("THIS BLOCK SHOULD NEVER HAVE BEEN CALLED");
+                    packets[sig - 1] = null;
+                    throw new Exception();
+                }
                 break;
             }
-            packets[sig - 1] = new PixyPacket();
-            packets[sig - 1].x = convert(rawData[i+9], rawData[i+8]);
-            packets[sig - 1].y = convert(rawData[i+11], rawData[i+10]);
-            packets[sig - 1].width = convert(rawData[i+13], rawData[i+12]);
-            packets[sig - 1].height = convert(rawData[i+15], rawData[i+14]);
-            
-            if(checksum != sig + packets[sig - 1].x + packets[sig - 1].y + packets[sig - 1].width + packets[sig - 1].height){
-                System.out.println("THIS BLOCK SHOULD NEVER HAVE BEEN CALLED");
-                packets[sig - 1] = null;
-                throw new Exception();
-            }
-            break;
         }
         PixyPacket newPacket = packets[signature - 1];
         packets[signature - 1] = null;
