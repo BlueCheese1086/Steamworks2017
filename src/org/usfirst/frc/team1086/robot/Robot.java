@@ -49,13 +49,17 @@ public class Robot extends IterativeRobot {
         defineAutonomousActions();
     }
     public void defineAutonomousActions(){
-        actions.put("Drive Forward", () -> drive.drive( 1, 0, 0, false));
-        actions.put("Drive Backwards", () -> drive.drive(-1, 0, 0, false));
+        actions.put("Drive Forward", () -> drive.drive(0.5, 0, 0, false));
+        actions.put("Drive Backwards", () -> drive.drive(-0.5, 0, 0, false));
         startActions.put("Set Target Turn To 60 Degrees", () -> {
             drive.setTurnToAngle(drive.getGyro().getAngle() + 60);
         });
         startActions.put("Set Target Turn To 300 Degrees", () -> {
             drive.setTurnToAngle(drive.getGyro().getAngle() - 60);
+        });
+        endActions.put("Reset PID", () -> {
+            drive.resetPIDs();
+            return true;
         });
         endActions.put("Turn To Target Angle", () -> {
             drive.drive(0, 0, drive.getTurnPower(), false);
@@ -87,14 +91,18 @@ public class Robot extends IterativeRobot {
         leftGear = new AutonomousRoutine(){
             @Override public void init(){
                 addSection(2000, actions.get("Drive Forward"));
+                addSection(endActions.get("reset PID"));
                 addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 60 Degrees"));
+                addSection(endActions.get("reset PID"));
                 addSection(endActions.get("Drive To Gear"));
             }
         };
         rightGear = new AutonomousRoutine(){
             @Override public void init(){
                 addSection(2000, actions.get("Drive Forward"));
+                addSection(endActions.get("reset PID"));
                 addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 300 Degrees"));
+                addSection(endActions.get("reset PID"));
                 addSection(endActions.get("Drive To Gear"));
             }
         };
@@ -105,6 +113,7 @@ public class Robot extends IterativeRobot {
     @Override public void autonomousPeriodic(){}
     @Override public void teleopInit(){}
     @Override public void teleopPeriodic(){
+        outputData();
         if(!buttonDown && leftStick.getRawButton(2))
             backward = !backward;
         buttonDown = leftStick.getRawButton(2);
@@ -140,4 +149,9 @@ public class Robot extends IterativeRobot {
         }
     }
     @Override public void testPeriodic(){}
+    private void outputData(){
+        navX.outputData();
+        drive.outputPIDData();
+        targetFinder.outputData();
+    }
 }
