@@ -2,12 +2,9 @@
 package org.usfirst.frc.team1086.robot.subsystems;
 
 import com.ctre.CANTalon;
-import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.PIDOutput;
-import edu.wpi.first.wpilibj.PIDSource;
-import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.usfirst.frc.team1086.robot.RobotMap;
 
 public class Drivetrain {
@@ -15,7 +12,6 @@ public class Drivetrain {
     CANTalon leftFrontColson, rightFrontColson, leftRearColson, rightRearColson;
     Solenoid trigger;
     Gyro navX;
-    //PIDController controller = new PIDController(0, 0, 0, this, this);
     PIDController turnToAngleController;
     PIDController driveStraightController;
     double turnToAngleOutput;
@@ -38,7 +34,6 @@ public class Drivetrain {
     }
     public void drive(double leftY, double leftX, double rightX, boolean trigger){
         this.trigger.set(trigger);
-        //targetAngle = getGyroAngle();
         if(!trigger){
             mecanum(leftY, leftX, rightX);
         } else {
@@ -61,8 +56,7 @@ public class Drivetrain {
     }
     public void startDriveStraight(){
         if(!driveStraight){
-            navX.reset();
-            driveStraightController.setSetpoint(0);
+            driveStraightController.setSetpoint(navX.getAngle());
             driveStraightController.setAbsoluteTolerance(0.5);
             driveStraightController.setContinuous(true);
             driveStraightController.setInputRange(-180, 180);
@@ -71,11 +65,19 @@ public class Drivetrain {
             driveStraight = true;
         }
     }
+    public void resetPIDs(){
+        turnToAngle = false;
+        driveStraight = false;
+        turnToAngleController.disable();
+        driveStraightController.disable();
+    }
     public double getTurnPower(){
         if(turnToAngle)
             return turnToAngleOutput;
-        else
+        else if(driveStraight)
             return driveStraightOutput;
+        else
+            return 0;
     }
     
     public void mecanum(double leftY, double leftX, double rightX){
@@ -97,7 +99,7 @@ public class Drivetrain {
         leftRearColson.set(leftY - rightX);
         rightRearMecanum.set(leftY + rightX);
         rightRearColson.set(leftY + rightX);
-    }
+    } 
     public void gyroDrive(double leftY, double leftX, boolean trigger){
         /*this.trigger.set(trigger);
         if(!gyroEnabled){
@@ -119,10 +121,9 @@ public class Drivetrain {
             return null;
     }
     public double getGyroAngle(){
-        return normalizeAngle(navX.getAngle());
+        return navX.getNormalizedAngle();
     }
-    public double normalizeAngle(double d){
-        double ang = (d % 360 + 360 % 360);
-        return ang > 180 ? ang - 360 : ang;
+    public void outputPIDData(){
+        SmartDashboard.putNumber("PID Turn Rate", getTurnPower());
     }
 }

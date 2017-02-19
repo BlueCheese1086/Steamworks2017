@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
 import org.opencv.core.MatOfPoint;
@@ -104,5 +105,12 @@ public class CameraTurning implements PIDOutput, CVDataHandler {
     }
     @Override public void handle(ArrayList<MatOfPoint> m){
         tt.c.handle(m);
+    }
+    public void outputData(){
+        SmartDashboard.putString("Current Target Type", tt == TargetType.BOILER ? "Boiler" : "Gear");
+        SmartDashboard.putNumber("Distance to Target", tt.c.distance);
+        SmartDashboard.putNumber("Angle to Target", tt.c.angle);
+        SmartDashboard.putNumber("PID Target Turn Rate", pidTurn);
+        SmartDashboard.putNumber("PID Target Drive Rate", pidDrive);
     }
 }
