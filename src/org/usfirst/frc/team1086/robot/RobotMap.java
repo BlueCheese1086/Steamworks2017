@@ -22,4 +22,6 @@ public class RobotMap {
     public static final int AUXILIARY_STICK = 5;
     
     public static final int GYRO = 0;
+    
+    public static final int COMPRESSOR = 9;
 }

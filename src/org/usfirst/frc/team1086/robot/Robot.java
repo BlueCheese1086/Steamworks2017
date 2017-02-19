@@ -1,12 +1,17 @@
 package org.usfirst.frc.team1086.robot;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.HashMap;
 import org.usfirst.frc.team1086.robot.autonomous.*;
 import org.usfirst.frc.team1086.robot.subsystems.*;
 import org.usfirst.frc.team1086.robot.camera.*;
+
+
 
 public class Robot extends IterativeRobot {
     Drivetrain drive;
@@ -26,6 +31,7 @@ public class Robot extends IterativeRobot {
     Intake intake;
     Climber climber;
     Agitator agitator;
+    Compressor compressor;
     Gyro navX;
     SendableChooser <AutonomousRoutine> chooser = new SendableChooser<>();
     boolean buttonDown = false;
@@ -40,6 +46,8 @@ public class Robot extends IterativeRobot {
         intake = new Intake();
         climber = new Climber();
         agitator = new Agitator();
+        compressor = new Compressor(RobotMap.COMPRESSOR);
+        compressor.setClosedLoopControl(true);
         chooser.addDefault("Logan Chaser", easyGear);
         chooser.addObject("RightGear", rightGear);
         chooser.addObject("Left Gear", leftGear);
@@ -105,6 +113,10 @@ public class Robot extends IterativeRobot {
     @Override public void autonomousPeriodic(){}
     @Override public void teleopInit(){}
     @Override public void teleopPeriodic(){
+    	SmartDashboard.putNumber("Left Y", leftStick.getY());
+    	SmartDashboard.putNumber("Left X", leftStick.getX());
+    	SmartDashboard.putNumber("Right X", rightStick.getX());
+    	
         if(!buttonDown && leftStick.getRawButton(2))
             backward = !backward;
         buttonDown = leftStick.getRawButton(2);
@@ -112,6 +124,8 @@ public class Robot extends IterativeRobot {
         if(leftStick.getRawButton(ButtonMap.SAFETY_DRIVE)){
             if(!rightStick.getRawButton(ButtonMap.GYRO_DRIVE))
                 drive.drive(leftStick.getY() * mult, leftStick.getX() * mult, rightStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
+            	//drive.drive(0, leftStick.getX() * mult, 0, rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
+            	//drive.drive(leftStick.getY(), rightStick.getX(), 0, rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
             else
                 drive.gyroDrive(leftStick.getY() * mult, leftStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         }

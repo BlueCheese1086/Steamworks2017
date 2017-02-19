@@ -8,6 +8,9 @@ import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+
 import org.usfirst.frc.team1086.robot.RobotMap;
 
 public class Drivetrain {
@@ -32,6 +35,10 @@ public class Drivetrain {
         rightFrontColson = new CANTalon(RobotMap.RIGHT_FRONT_COLSON);
         rightRearColson = new CANTalon(RobotMap.RIGHT_REAR_COLSON);
         trigger = new Solenoid(RobotMap.TRIGGER);
+        leftFrontMecanum.setInverted(true);
+        leftFrontColson.setInverted(true);
+        leftRearMecanum.setInverted(true);
+        leftRearColson.setInverted(true);
         navX = new Gyro();
         turnToAngleController = new PIDController(0, 0, 0, navX, v -> turnToAngleOutput = v);
         driveStraightController = new PIDController(0, 0, 0, navX, v -> turnToAngleOutput = v);
@@ -87,6 +94,22 @@ public class Drivetrain {
         leftRearColson.set(leftY - rightX + leftX);
         rightRearMecanum.set(leftY + rightX - leftX);
         rightRearColson.set(leftY + rightX - leftX);
+        SmartDashboard.putNumber("leftFrontCim", (leftY - rightX - leftX));
+        SmartDashboard.putNumber("leftFrontMini", (leftY - rightX - leftX));
+        SmartDashboard.putNumber("rightFrontCim", (leftY + rightX + leftX));
+        SmartDashboard.putNumber("rightFrontMini", (leftY + rightX + leftX));
+        SmartDashboard.putNumber("leftRearCim", (leftY - rightX + leftX));
+        SmartDashboard.putNumber("leftRearMini", (leftY - rightX + leftX));
+        SmartDashboard.putNumber("rightRearCim", (leftY + rightX - leftX));
+        SmartDashboard.putNumber("rightRearMini", (leftY + rightX - leftX));
+        SmartDashboard.putNumber("_leftFrontCimCurrent", leftFrontMecanum.getOutputVoltage());
+        SmartDashboard.putNumber("_leftFrontMiniCurrent", leftFrontColson.getOutputVoltage());
+        SmartDashboard.putNumber("_rightFrontCimCurrent", rightFrontMecanum.getOutputVoltage());
+        SmartDashboard.putNumber("_rightFrontMiniCurrent", rightFrontColson.getOutputVoltage());
+        SmartDashboard.putNumber("_rightRearCimCurrent", rightRearMecanum.getOutputVoltage());
+        SmartDashboard.putNumber("_rightRearMiniCurrent", rightRearColson.getOutputVoltage());
+        SmartDashboard.putNumber("_leftRearCimCurrent", leftRearMecanum.getOutputVoltage());
+        SmartDashboard.putNumber("_leftRearMiniCurrent", leftRearColson.getOutputVoltage());
     }
     public void colson(double leftY, double rightX){
         leftFrontMecanum.set(leftY - rightX);
