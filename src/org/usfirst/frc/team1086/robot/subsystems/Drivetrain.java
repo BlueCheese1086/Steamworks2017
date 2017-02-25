@@ -2,6 +2,8 @@
 package org.usfirst.frc.team1086.robot.subsystems;
 
 import com.ctre.CANTalon;
+
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,24 +15,29 @@ public class Drivetrain {
     Solenoid trigger;
     Gyro navX;
     PIDController turnToAngleController;
-    PIDController driveStraightController;
+    public PIDController driveStraightController;
     double turnToAngleOutput;
     double driveStraightOutput;
-    boolean turnToAngle = false;
-    boolean driveStraight = false;
+    public boolean turnToAngle = false;
+    public boolean driveStraight = false;
     public Drivetrain(){
         leftFrontMecanum = new CANTalon(RobotMap.LEFT_FRONT_MECANUM);
         leftRearMecanum = new CANTalon(RobotMap.LEFT_REAR_MECANUM);
         rightFrontMecanum = new CANTalon(RobotMap.RIGHT_FRONT_MECANUM);
-        rightRearMecanum = new CANTalon(RobotMap.RIGHT_REAR_MECANUM);
+        rightRearMecanum = new CANTalon(RobotMap.RIGHT_REAR_MECANUM);      
         leftFrontColson = new CANTalon(RobotMap.LEFT_FRONT_COLSON);
         leftRearColson = new CANTalon(RobotMap.LEFT_REAR_COLSON);
         rightFrontColson = new CANTalon(RobotMap.RIGHT_FRONT_COLSON);
         rightRearColson = new CANTalon(RobotMap.RIGHT_REAR_COLSON);
+        leftFrontMecanum.setInverted(true);
+        leftFrontColson.setInverted(true);
+        leftRearMecanum.setInverted(true);
+        leftRearColson.setInverted(true);
         trigger = new Solenoid(RobotMap.TRIGGER);
+        
         navX = new Gyro();
-        turnToAngleController = new PIDController(0, 0, 0, navX, v -> turnToAngleOutput = v);
-        driveStraightController = new PIDController(0, 0, 0, navX, v -> turnToAngleOutput = v);
+        turnToAngleController = new PIDController(0.012, 0, 0.011, navX, v -> turnToAngleOutput = v);
+        driveStraightController = new PIDController(0.06, 0, 0, navX, v -> driveStraightOutput = v);
     }
     public void drive(double leftY, double leftX, double rightX, boolean trigger){
         this.trigger.set(trigger);
@@ -46,17 +53,17 @@ public class Drivetrain {
     public void setTurnToAngle(double angle){
         if(!turnToAngle){
             turnToAngleController.setSetpoint(angle);
-            turnToAngleController.setAbsoluteTolerance(0.5);
+            turnToAngleController.setAbsoluteTolerance(1.5);
             turnToAngleController.setContinuous(true);
             turnToAngleController.setInputRange(-180, 180);
-            turnToAngleController.setOutputRange(-1, 1);
+            turnToAngleController.setOutputRange(-0.8, 0.8);
             turnToAngleController.enable();
             turnToAngle = true;
         }
     }
     public void startDriveStraight(){
         if(!driveStraight){
-            driveStraightController.setSetpoint(navX.getAngle());
+            driveStraightController.setSetpoint(0);
             driveStraightController.setAbsoluteTolerance(0.5);
             driveStraightController.setContinuous(true);
             driveStraightController.setInputRange(-180, 180);
@@ -74,8 +81,9 @@ public class Drivetrain {
     public double getTurnPower(){
         if(turnToAngle)
             return turnToAngleOutput;
-        else if(driveStraight)
+        else if(driveStraight){
             return driveStraightOutput;
+        }
         else
             return 0;
     }
@@ -125,5 +133,7 @@ public class Drivetrain {
     }
     public void outputPIDData(){
         SmartDashboard.putNumber("PID Turn Rate", getTurnPower());
+        SmartDashboard.putNumber("Set Point", turnToAngleController.getSetpoint());
+        SmartDashboard.putNumber("_Error", turnToAngleController.getError());
     }
 }

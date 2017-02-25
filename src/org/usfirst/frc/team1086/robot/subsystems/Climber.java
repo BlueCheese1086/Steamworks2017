@@ -12,8 +12,8 @@ public class Climber {
         climb2 = new CANTalon(RobotMap.CLIMB2);
     }
     public void climb(){
-        climb1.set(1);
-        climb2.set(1);
+        climb1.set(-1);
+        climb2.set(-1);
     }
     public void stop(){
         climb1.set(0);

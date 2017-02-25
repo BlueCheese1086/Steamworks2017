@@ -67,13 +67,13 @@ public class ImageProcessing {
 
         //FILTER CONTOURS
         ArrayList<MatOfPoint> filterContoursContours = findContoursOutput;
-        double filterContoursMinArea = 20;
+        double filterContoursMinArea = 50;
         double filterContoursMinPerimeter = 0.0;
         double filterContoursMinWidth = 0;
         double filterContoursMaxWidth = 700.0;
         double filterContoursMinHeight = 0;
         double filterContoursMaxHeight = 1000;
-        double[] filterContoursSolidity = {0, 100.0};
+        double[] filterContoursSolidity = {30, 100.0};
         double filterContoursMaxVertices = 1000000;
         double filterContoursMinVertices = 0;
         double filterContoursMinRatio = 0;

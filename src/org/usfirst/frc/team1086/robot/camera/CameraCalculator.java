@@ -1,6 +1,8 @@
 package org.usfirst.frc.team1086.robot.camera;
 
 import edu.wpi.first.wpilibj.PIDSource;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import org.opencv.core.MatOfPoint;
@@ -26,13 +28,18 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
             distance = -1;
         } else {
             double midY = visionObjects.stream().mapToDouble(p -> (p.centerY + p.height / 2) / (visionObjects.size())).sum();
+            System.out.println("WARNING: Mid Y: " + midY);
             double avgH = visionObjects.stream().mapToDouble(p -> (p.height) / (visionObjects.size())).sum();
             double angleFromCameraToTarget = getYAngle(midY);
+            System.out.println("WARNING: Angle to Target: " + angleFromCameraToTarget);
             double verticalAngle = angleFromCameraToTarget + Constants.CAMERA_VERTICAL_ANGLE;
+            System.out.println("WARNING: Vert Angle: " + verticalAngle * 180 / Math.PI);
             double changeInY = TARGET_HEIGHT - Constants.CAMERA_ELEVATION;
+            System.out.println("WARNING: DELTA Y: " + changeInY);
             double distanceToTarget = changeInY / Math.sin(verticalAngle);
             double horizontalDistance = distanceToTarget * Math.cos(verticalAngle);
             distance = horizontalDistance;
+            System.out.println("WARNING: Distance: " + distance);
         }
     }
     public void calculateAngle(){
@@ -57,6 +64,7 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
     public double getYAngle(double y){
         double VF = (Constants.MAX_Y_PIXELS / 2) / Math.tan(Constants.CAMERA_VFOV / 2);
         double cy = (Constants.MAX_Y_PIXELS / 2) - 0.5;
+        SmartDashboard.putNumber("Raw Angle", Math.atan((cy - y) / VF) * 180.0 / Math.PI);	
         return Math.atan((cy - y) / VF);
     }
     @Override public double pidGet(){

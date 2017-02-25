@@ -17,9 +17,9 @@ public class CameraTurning implements PIDOutput, CVDataHandler {
     double kPturn = -0.015;
     double kIturn = -0.00001;
     double kDturn = -0.017;
-    double kPdrive = 0.11;
+    double kPdrive = 0.105;
     double kIdrive = 0.0;
-    double kDdrive = 0.075;
+    double kDdrive = 0.095;
     static double kToleranceDegrees = 0.5;
     static double kToleranceDistance = 0.1;
     double pidTurn;
@@ -49,7 +49,7 @@ public class CameraTurning implements PIDOutput, CVDataHandler {
             }
         }, d -> pidDrive = d);
         driveController.setInputRange(0, 20);
-        driveController.setOutputRange(-0.25, 0.25);
+        driveController.setOutputRange(-0.3, 0.3);
         driveController.setAbsoluteTolerance(kToleranceDistance);
         driveController.setSetpoint(0.25);
         driveController.setContinuous(false);
