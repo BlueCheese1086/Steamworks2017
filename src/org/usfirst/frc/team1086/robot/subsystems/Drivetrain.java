@@ -42,9 +42,9 @@ public class Drivetrain {
     public void drive(double leftY, double leftX, double rightX, boolean trigger){
         this.trigger.set(trigger);
         if(!trigger){
-            mecanum(leftY, leftX, rightX);
+            mecanum(leftY * Math.abs(leftY), leftX * Math.abs(leftX), rightX * Math.abs(rightX));
         } else {
-            colson(leftY, rightX);
+            colson(leftY * Math.abs(leftY), rightX * Math.abs(rightX));
         }
     }
     public Gyro getGyro(){

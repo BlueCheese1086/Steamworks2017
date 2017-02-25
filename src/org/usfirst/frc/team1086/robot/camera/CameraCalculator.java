@@ -27,19 +27,19 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
         if(visionObjects.isEmpty()){
             distance = -1;
         } else {
-            double midY = visionObjects.stream().mapToDouble(p -> (p.centerY + p.height / 2) / (visionObjects.size())).sum();
-            System.out.println("WARNING: Mid Y: " + midY);
+            double midY = visionObjects.stream().mapToDouble(p -> (p.centerY - p.height / 2) / (visionObjects.size())).sum();
+            //System.out.println("Mid Y: " + midY);
             double avgH = visionObjects.stream().mapToDouble(p -> (p.height) / (visionObjects.size())).sum();
             double angleFromCameraToTarget = getYAngle(midY);
-            System.out.println("WARNING: Angle to Target: " + angleFromCameraToTarget);
+            //System.out.println("Angle to Target: " + angleFromCameraToTarget);
             double verticalAngle = angleFromCameraToTarget + Constants.CAMERA_VERTICAL_ANGLE;
-            System.out.println("WARNING: Vert Angle: " + verticalAngle * 180 / Math.PI);
+            //System.out.println("Vert Angle: " + verticalAngle * 180 / Math.PI);
             double changeInY = TARGET_HEIGHT - Constants.CAMERA_ELEVATION;
-            System.out.println("WARNING: DELTA Y: " + changeInY);
+            //System.out.println("DELTA Y: " + changeInY);
             double distanceToTarget = changeInY / Math.sin(verticalAngle);
             double horizontalDistance = distanceToTarget * Math.cos(verticalAngle);
             distance = horizontalDistance;
-            System.out.println("WARNING: Distance: " + distance);
+            System.out.println("Distance: " + distance);
         }
     }
     public void calculateAngle(){

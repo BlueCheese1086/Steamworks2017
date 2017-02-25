@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -51,6 +52,8 @@ public class Robot extends IterativeRobot {
         chooser.addDefault("Logan Chaser", easyGear);
         chooser.addObject("RightGear", rightGear);
         chooser.addObject("Left Gear", leftGear);
+        SmartDashboard.putData("Autonomous Chooser", chooser);
+        SmartDashboard.putString("TEStING", "VALUE");
         imageProcessing = new ImageProcessing();
         imageProcessing.setCameraTarget(targetFinder);
         imageProcessing.start();
@@ -59,12 +62,13 @@ public class Robot extends IterativeRobot {
         compressor = new Compressor(RobotMap.COMPRESSOR);
         compressor.setClosedLoopControl(true);
         navX.reset();
-        gearDriver = new PIDController(0.024, 0, .05, 0, targetFinder.getTargetType(), v -> gearDriveOutput = v);
+        gearDriver = new PIDController(-0.024, 0, -.05, 0, targetFinder.getTargetType(), v -> gearDriveOutput = v);
 		gearDriver.setInputRange(-180.0, 180.0);
 		gearDriver.setOutputRange(-1.0, 1.0);
 		gearDriver.setAbsoluteTolerance(.1);
 		gearDriver.setContinuous(true);
 		gearDriver.enable();
+		LiveWindow.addActuator("Gear Driver", "PID", gearDriver);
         defineAutonomousActions();
     }
     public void defineAutonomousActions(){
@@ -137,11 +141,17 @@ public class Robot extends IterativeRobot {
         };
     }
     @Override public void autonomousInit(){
+    	chooser.getSelected();
+    	chooser.addDefault("LOGAN CHASE", easyGear);
+    	System.out.println("TEST CODE: " + SmartDashboard.getString("TEStING", "uh oh"));
         chooser.getSelected().begin();
     }
     @Override public void autonomousPeriodic(){}
     @Override public void teleopInit(){
     	drive.setTurnToAngle(90);
+    }
+    @Override public void testPeriodic(){
+    	teleopPeriodic();
     }
     @Override public void teleopPeriodic(){
         outputData();
@@ -208,10 +218,11 @@ public class Robot extends IterativeRobot {
         if(rightStick.getRawButton(7)){
 			if(targetFinder.getTargetType() != CameraTurning.TargetType.GEAR)
 				targetFinder.setTargetType(CameraTurning.TargetType.GEAR);
+			if(!gearDriver.isEnabled())
+				gearDriver.enable();
 			drive.mecanum(targetFinder.getDrivePower(), 0, gearDriveOutput * 0.5);
 		}
     }
-    @Override public void testPeriodic(){}
     private void outputData(){
         navX.outputData();
         drive.outputPIDData();

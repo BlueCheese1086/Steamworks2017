@@ -17,9 +17,9 @@ public class CameraTurning implements PIDOutput, CVDataHandler {
     double kPturn = -0.015;
     double kIturn = -0.00001;
     double kDturn = -0.017;
-    double kPdrive = 0.105;
-    double kIdrive = 0.0;
-    double kDdrive = 0.095;
+    double kPdrive = -0.21;
+    double kIdrive = -0.0;
+    double kDdrive = -0.21;
     static double kToleranceDegrees = 0.5;
     static double kToleranceDistance = 0.1;
     double pidTurn;
@@ -109,6 +109,7 @@ public class CameraTurning implements PIDOutput, CVDataHandler {
     public void outputData(){
         SmartDashboard.putString("Current Target Type", tt == TargetType.BOILER ? "Boiler" : "Gear");
         SmartDashboard.putNumber("Distance to Target", tt.c.distance);
+        System.out.println(tt.c.distance);
         SmartDashboard.putNumber("Angle to Target", tt.c.angle);
         SmartDashboard.putNumber("PID Target Turn Rate", pidTurn);
         SmartDashboard.putNumber("PID Target Drive Rate", pidDrive);
