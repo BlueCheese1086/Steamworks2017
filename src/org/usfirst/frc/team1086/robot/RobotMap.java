@@ -14,12 +14,18 @@ public class RobotMap {
     public static final int CLIMB1 = 11; 
     public static final int CLIMB2 = 12; 
     public static final int AGITATOR = 13;
+    public static final int HOOD = 14;
 
     public static final int TRIGGER = 1;
     
     public static final int LEFT_STICK = 0;
     public static final int RIGHT_STICK = 1;
     public static final int AUXILIARY_STICK = 5;
+    
+    public static final int UP_SWITCH = 0;
+    public static final int DOWN_SWITCH = 1;
+    
+    public static final int HOOD_ENCODER = 0;
     
     public static final int GYRO = 0;
     
