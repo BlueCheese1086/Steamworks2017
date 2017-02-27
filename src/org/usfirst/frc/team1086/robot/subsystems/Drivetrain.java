@@ -89,6 +89,7 @@ public class Drivetrain {
     }
     
     public void mecanum(double leftY, double leftX, double rightX){
+    	System.out.println("Drive speed: " + leftY);
         leftFrontMecanum.set(leftY - rightX - leftX);
         leftFrontColson.set(leftY - rightX - leftX);
         rightFrontMecanum.set(leftY + rightX + leftX);

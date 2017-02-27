@@ -39,7 +39,7 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
             double distanceToTarget = changeInY / Math.sin(verticalAngle);
             double horizontalDistance = distanceToTarget * Math.cos(verticalAngle);
             distance = horizontalDistance;
-            System.out.println("Distance: " + distance);
+          //  System.out.println("Distance: " + distance);
         }
     }
     public void calculateAngle(){
@@ -54,6 +54,7 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
             double c = Math.asin(Constants.CAMERA_HORIZONTAL_OFFSET * Math.sin(horizontalAngle) / f);
             double b = Math.PI - horizontalAngle - c;
             angle = ((Math.PI / 2 - b) - Constants.CAMERA_HORIZONTAL_ANGLE) * 180.0 / Math.PI;
+     //       System.out.println("Angle: " + angle);
         }
     }
     public double getXAngle(double x){

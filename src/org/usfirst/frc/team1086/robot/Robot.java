@@ -25,7 +25,7 @@ public class Robot extends IterativeRobot {
     AutonomousRoutine easyGear;
     AutonomousRoutine leftGear;
     AutonomousRoutine rightGear;
-    AutonomousRoutine selectedAuto;
+    AutonomousRoutine chaseLogan;
     CameraTurning targetFinder;
     Shooter flyWheel;
     ImageProcessing imageProcessing;
@@ -53,7 +53,6 @@ public class Robot extends IterativeRobot {
         chooser.addObject("RightGear", rightGear);
         chooser.addObject("Left Gear", leftGear);
         SmartDashboard.putData("Autonomous Chooser", chooser);
-        SmartDashboard.putString("TEStING", "VALUE");
         imageProcessing = new ImageProcessing();
         imageProcessing.setCameraTarget(targetFinder);
         imageProcessing.start();
@@ -62,7 +61,7 @@ public class Robot extends IterativeRobot {
         compressor = new Compressor(RobotMap.COMPRESSOR);
         compressor.setClosedLoopControl(true);
         navX.reset();
-        gearDriver = new PIDController(-0.024, 0, -.05, 0, targetFinder.getTargetType(), v -> gearDriveOutput = v);
+        gearDriver = new PIDController(-0.028, 0, -.056, 0, targetFinder.getTargetType(), v -> gearDriveOutput = v);
 		gearDriver.setInputRange(-180.0, 180.0);
 		gearDriver.setOutputRange(-1.0, 1.0);
 		gearDriver.setAbsoluteTolerance(.1);
@@ -74,6 +73,9 @@ public class Robot extends IterativeRobot {
     public void defineAutonomousActions(){
         actions.put("Drive Forward", () -> drive.drive(0.5, 0, 0, false));
         actions.put("Drive Backwards", () -> drive.drive(-0.5, 0, 0, false));
+        actions.put("Stop Fast", () -> drive.drive(-0.2, 0, 0, false));
+        actions.put("Stop", () -> drive.drive(0, 0, 0, false));
+        actions.put("Test", () -> System.out.println("This is a section"));
         startActions.put("Set Target Turn To 60 Degrees", () -> {
             drive.setTurnToAngle(drive.getGyro().getAngle() + 60);
         });
@@ -81,6 +83,7 @@ public class Robot extends IterativeRobot {
             drive.setTurnToAngle(drive.getGyro().getAngle() - 60);
         });
         startActions.put("Enable Gear Drive", () -> {
+        	System.out.println("ENABLED GEAR DRIVE!");
         	gearDriver.setSetpoint(0);
         	gearDriver.enable();
         });
@@ -93,8 +96,10 @@ public class Robot extends IterativeRobot {
             return drive.getActiveController().onTarget();
         });
         endActions.put("Drive to Sight", () -> {
-			drive.mecanum(-0.2, 0, 0);
-			return targetFinder.getDistance() != -1 && targetFinder.getDistance() < 100;
+        	targetFinder.setTargetType(TargetType.GEAR);
+			drive.mecanum(0.2, 0, 0);
+			//System.out.println("SIGHT, Distance: " + targetFinder.getDistance() + " and " + (targetFinder.getDistance() != -1 && targetFinder.getDistance() < 100));
+			return targetFinder.getDistance() != -1 && targetFinder.getDistance() < 250;
 		});
         endActions.put("Turn To Boiler", () -> {
             if(targetFinder.getTargetType() != CameraTurning.TargetType.BOILER)
@@ -112,13 +117,23 @@ public class Robot extends IterativeRobot {
         	gearDriver.enable();
             if(targetFinder.getTargetType() != CameraTurning.TargetType.GEAR)
                 targetFinder.setTargetType(CameraTurning.TargetType.GEAR);
-            drive.drive(targetFinder.getDrivePower(), 0, gearDriveOutput * 0.5, false);
-            return targetFinder.getDistance() < 40 && targetFinder.getDistance() != -1;
+            double drivePower = targetFinder.getDrivePower();           
+            drive.drive(Math.signum(drivePower) * Math.sqrt(Math.abs(drivePower)), 0.0, gearDriveOutput, false);
+            SmartDashboard.putNumber("Gear Drive Angle", gearDriver.getError());
+            SmartDashboard.putNumber("Gear Drive Turn", gearDriveOutput);
+            return targetFinder.getDistance() < 34 && targetFinder.getDistance() != -1;
         });
+        chaseLogan = new AutonomousRoutine(){
+        	@Override public void init(){
+        		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
+                addSection(300, actions.get("Stop Fast"));
+                addSection(500, actions.get("Stop"));
+        	}
+        };
         easyGear = new AutonomousRoutine(){
             @Override public void init(){
             	addSection(endActions.get("Drive to Sight"));
-                addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
+                addSection(chaseLogan);
             }
         };
         leftGear = new AutonomousRoutine(){
@@ -127,7 +142,7 @@ public class Robot extends IterativeRobot {
                 addSection(endActions.get("reset PID"));
                 addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 60 Degrees"));
                 addSection(endActions.get("reset PID"));
-                addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
+                addSection(chaseLogan);
             }
         };
         rightGear = new AutonomousRoutine(){
@@ -136,15 +151,16 @@ public class Robot extends IterativeRobot {
                 addSection(endActions.get("reset PID"));
                 addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 300 Degrees"));
                 addSection(endActions.get("reset PID"));
-                addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
+                addSection(chaseLogan);
             }
         };
     }
-    @Override public void autonomousInit(){
+    @Override public void autonomousInit(){/*
     	chooser.getSelected();
     	chooser.addDefault("LOGAN CHASE", easyGear);
     	System.out.println("TEST CODE: " + SmartDashboard.getString("TEStING", "uh oh"));
-        chooser.getSelected().begin();
+        chooser.getSelected().begin();*/
+        easyGear.begin();
     }
     @Override public void autonomousPeriodic(){}
     @Override public void teleopInit(){
@@ -170,6 +186,7 @@ public class Robot extends IterativeRobot {
             flyWheel.shoot();
         }
         if(auxiliaryStick.getRawButton(ButtonMap.COLLECT)){
+        	System.out.println("Hello");
             intake.motorIn();
         } 
         else {
@@ -220,6 +237,9 @@ public class Robot extends IterativeRobot {
 				targetFinder.setTargetType(CameraTurning.TargetType.GEAR);
 			if(!gearDriver.isEnabled())
 				gearDriver.enable();
+			System.out.println("Distance: " + targetFinder.getDistance() + " " + (targetFinder.getDistance() < 40 && targetFinder.getDistance() != -1));
+            System.out.println("DRIVE POWER: " + targetFinder.getDrivePower());
+            System.out.println("GEAR TURN POWER: " + gearDriveOutput);
 			drive.mecanum(targetFinder.getDrivePower(), 0, gearDriveOutput * 0.5);
 		}
     }
@@ -228,5 +248,6 @@ public class Robot extends IterativeRobot {
         drive.outputPIDData();
         targetFinder.outputData();
         SmartDashboard.putNumber("Gear Drive Output", gearDriveOutput);
+        SmartDashboard.putNumber("Gear Drive Speed", targetFinder.getDrivePower());
     }
 }

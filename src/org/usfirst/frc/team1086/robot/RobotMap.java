@@ -9,12 +9,13 @@ public class RobotMap {
     public static final int RIGHT_REAR_MECANUM = 7;
     public static final int RIGHT_REAR_COLSON = 8;
     
-    public static final int SHOOTER = 9;
-    public static final int INTAKE = 10;
+    public static final int INTAKE1 = 16;
+    public static final int INTAKE2 = 17;
     public static final int CLIMB1 = 11; 
     public static final int CLIMB2 = 12; 
     public static final int AGITATOR = 13;
     public static final int HOOD = 14;
+    public static final int SHOOTER = 10;
 
     public static final int TRIGGER = 1;
     
