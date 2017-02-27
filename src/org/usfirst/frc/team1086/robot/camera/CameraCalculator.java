@@ -68,6 +68,28 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
         SmartDashboard.putNumber("Raw Angle", Math.atan((cy - y) / VF) * 180.0 / Math.PI);	
         return Math.atan((cy - y) / VF);
     }
+    public double getTargetAngle(){
+        if(visionObjects.size() < 2)
+            return 0;
+        visionObjects = new ArrayList(visionObjects.stream().sorted((a, b) -> { return a.area > b.area ? 1 : a.area < b.area ? -1 : 0; })
+                .limit(2).sorted((a, b) -> { return a.x > b.x ? 1 : b.x > a.x ? -1 : 0; }).collect(Collectors.toList()));
+        double horizontalAngle = Math.PI / 2 - getXAngle(visionObjects.get(1).x);
+        double f = Math.sqrt(distance * distance + Math.pow(Constants.CAMERA_HORIZONTAL_OFFSET, 2)
+                                        - 2 * distance * Constants.CAMERA_HORIZONTAL_OFFSET * Math.cos(horizontalAngle));
+        double g = Math.asin(Constants.CAMERA_HORIZONTAL_OFFSET * Math.sin(horizontalAngle) / f);
+        double b = Math.PI - horizontalAngle - g;
+        double angle1 = (Math.PI / 2 - b) - Constants.CAMERA_HORIZONTAL_ANGLE;
+        double theta = angle - angle1;
+        double h = distance;
+        double c = 3;//Half the distance between the pieces of retroreflective tape
+        double phi1 = Math.PI - theta - Math.asin(h / c * Math.sin(theta));
+        double phi2 = -phi1 + Math.PI - 2 * theta;
+        double targetAngle;
+        if(visionObjects.get(0).width > visionObjects.get(1).width){
+            targetAngle = Math.max(phi1, phi2);
+        } else targetAngle = Math.min(phi1, phi2);
+        return (Math.PI / 2 - targetAngle) * 180.0 / Math.PI;
+    }
     @Override public double pidGet(){
         return angle;
     }
