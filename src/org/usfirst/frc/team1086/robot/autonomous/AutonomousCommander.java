@@ -11,12 +11,12 @@ public class AutonomousCommander {
     boolean started = false;
     Thread manager = new Thread(){
         @Override public void run(){
-            tick();
-            try {
-                sleep(10);
-                if(started)
-                    run();
-            } catch (Exception e) {}
+        	while(started){
+        		tick();
+            	try {
+            		sleep(10);
+            	} catch (Exception e) {}
+        	}
         }
     };
     public AutonomousCommander(){}
@@ -28,6 +28,15 @@ public class AutonomousCommander {
             if(a.run())
                 next();
         }, () -> {});
+    }
+    public void addSection(AutonomousRoutine ar){
+    	/*int maxSections = sectionTimes.size();
+    	for(Integer i : ar.sectionTimes.keySet()){
+    		sectionTimes.put(maxSections + i, ar.sectionTimes.get(i));
+    		sectionStartActions.put(maxSections + i, ar.sectionStartActions.get(i));
+    		sectionActions.put(maxSections + i, ar.sectionActions.get(i));
+    	}*/
+    	addSection(() -> { return !ar.started; }, () -> { ar.begin(); });
     }
     public void addSection(double time, Runnable ru, Runnable start){
         sectionTimes.put(sectionTimes.size(), time);
@@ -50,10 +59,11 @@ public class AutonomousCommander {
             System.out.println("WARNING: Autonomous duration exceeds 15 seconds");
         sectionTimes.put(sectionTimes.size(), Double.POSITIVE_INFINITY);
         sectionActions.put(sectionActions.size(), () -> stop());
-        sectionStartActions.put(sectionActions.size(), () -> stop());
+        sectionStartActions.put(sectionStartActions.size(), () -> stop());
         goToSection(0);
         started = true;
-        manager.start();
+        if(!manager.isAlive())
+        	manager.start();
     }
     public void stop(){
         started = false;
@@ -63,6 +73,7 @@ public class AutonomousCommander {
     }
     public void goToSection(int n){
         section = n;
+        //System.out.println("NEW SECTION: " + n);
         endTime = System.currentTimeMillis() + sectionTimes.get(n);
         sectionStartActions.get(n).run();
     }

@@ -1,6 +1,8 @@
 package org.usfirst.frc.team1086.robot.camera;
 
 import edu.wpi.first.wpilibj.PIDSource;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import org.opencv.core.MatOfPoint;
@@ -25,18 +27,24 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
         if(visionObjects.isEmpty()){
             distance = -1;
         } else {
-            double midY = visionObjects.stream().mapToDouble(p -> p.centerY / visionObjects.size()).sum();
+            double midY = visionObjects.stream().mapToDouble(p -> (p.centerY - p.height / 2) / (visionObjects.size())).sum();
+            //System.out.println("Mid Y: " + midY);
+            double avgH = visionObjects.stream().mapToDouble(p -> (p.height) / (visionObjects.size())).sum();
             double angleFromCameraToTarget = getYAngle(midY);
+            //System.out.println("Angle to Target: " + angleFromCameraToTarget);
             double verticalAngle = angleFromCameraToTarget + Constants.CAMERA_VERTICAL_ANGLE;
+            //System.out.println("Vert Angle: " + verticalAngle * 180 / Math.PI);
             double changeInY = TARGET_HEIGHT - Constants.CAMERA_ELEVATION;
+            //System.out.println("DELTA Y: " + changeInY);
             double distanceToTarget = changeInY / Math.sin(verticalAngle);
             double horizontalDistance = distanceToTarget * Math.cos(verticalAngle);
             distance = horizontalDistance;
+          //  System.out.println("Distance: " + distance);
         }
     }
     public void calculateAngle(){
         if(visionObjects.isEmpty()){
-            angle = Math.PI;
+            angle = 180;
         } else {
             double midX = visionObjects.stream().mapToDouble(p -> p.centerX / visionObjects.size()).sum();
             double horizontalAngle = Math.PI / 2 - getXAngle(midX);
@@ -45,7 +53,8 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
                                             - 2 * distance * Constants.CAMERA_HORIZONTAL_OFFSET * Math.cos(horizontalAngle));
             double c = Math.asin(Constants.CAMERA_HORIZONTAL_OFFSET * Math.sin(horizontalAngle) / f);
             double b = Math.PI - horizontalAngle - c;
-            angle = (Math.PI / 2 - b) - Constants.CAMERA_HORIZONTAL_ANGLE;
+            angle = ((Math.PI / 2 - b) - Constants.CAMERA_HORIZONTAL_ANGLE) * 180.0 / Math.PI;
+     //       System.out.println("Angle: " + angle);
         }
     }
     public double getXAngle(double x){
@@ -56,6 +65,7 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
     public double getYAngle(double y){
         double VF = (Constants.MAX_Y_PIXELS / 2) / Math.tan(Constants.CAMERA_VFOV / 2);
         double cy = (Constants.MAX_Y_PIXELS / 2) - 0.5;
+        SmartDashboard.putNumber("Raw Angle", Math.atan((cy - y) / VF) * 180.0 / Math.PI);	
         return Math.atan((cy - y) / VF);
     }
     public double getTargetAngle(){

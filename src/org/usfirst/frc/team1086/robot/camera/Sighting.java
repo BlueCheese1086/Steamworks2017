@@ -11,18 +11,20 @@ public class Sighting {
     double solidity;
     double aspectRatio;
     public boolean possibleBoiler(){
-        if(solidity < 0.8)
-            return false;
-        return aspectRatio >= 2;
+    	return true;
+        //if(solidity < 0.8)
+        //    return false;
+        //return aspectRatio >= 0;
     }
     public boolean possibleGear(){
-        if(solidity < 0.8)
-            return false;
-        return aspectRatio <= 0.5;
+    	return true;
+        //if(solidity < 0.8)
+        //    return false;
+        //return aspectRatio <= 0.5;
     }
     public Sighting(MatOfPoint m){
-        height = m.height();
-        width = m.width();
+        height = Imgproc.boundingRect(m).height;
+        width = Imgproc.boundingRect(m).width;
         x = Imgproc.boundingRect(m).x;
         y = Imgproc.boundingRect(m).y;
         area = Imgproc.contourArea(m);
@@ -30,5 +32,8 @@ public class Sighting {
         aspectRatio = width / height;
         centerX = x + width / 2;
         centerY = y + height / 2;
+    }
+    @Override public String toString(){
+    	return "(" + x + ", " + y + ") to (" + (x + width) + ", " + (y + height) + ")";
     }
 }
