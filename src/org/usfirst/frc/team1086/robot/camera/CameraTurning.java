@@ -13,6 +13,7 @@ import org.opencv.core.MatOfPoint;
 public class CameraTurning implements CVDataHandler {
     PIDController turnController;
     PIDController driveController;
+    PIDController strafeController;
     TargetType tt = TargetType.BOILER;
     static double kPturn = -0.015;
     static double kIturn = -0.00001;
@@ -32,6 +33,21 @@ public class CameraTurning implements CVDataHandler {
     }
     public CameraTurning(){
         setTargetType(TargetType.BOILER);
+        strafeController = new PIDController(0, 0, 0, new PIDSource(){
+            @Override public void setPIDSourceType(PIDSourceType pidSource){}
+            @Override public PIDSourceType getPIDSourceType(){
+                return PIDSourceType.kDisplacement;
+            }
+            @Override public double pidGet(){
+                return TargetType.GEAR.c.getTargetAngle();
+            }
+        }, d -> {});
+        strafeController.setInputRange(-45, 45);
+        strafeController.setOutputRange(-0.5, 0.5);
+        strafeController.setSetpoint(0);
+        strafeController.setContinuous(false);
+        strafeController.setAbsoluteTolerance(5);
+        strafeController.enable();
     }
     public void reset(){
     	driveController.reset();
@@ -59,6 +75,11 @@ public class CameraTurning implements CVDataHandler {
     public double getDrivePower(){
     	driveController.enable();
         return driveController.get();
+    }
+    public double getStrafePower(){
+        if(tt == TargetType.GEAR)
+            return strafeController.get();
+        else return 0;
     }
     public static enum TargetType implements PIDSource {
         BOILER(new HighGoalFinder()),
