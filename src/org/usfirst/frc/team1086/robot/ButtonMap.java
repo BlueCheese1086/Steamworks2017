@@ -6,7 +6,7 @@ public class ButtonMap {
     
     //RIGHT JOYSTICK
     public static final int OCTO_SHIFTER = 1;
-    public static final int GYRO_DRIVE = 2;
+    public static final int STRAIGHT_DRIVE = 2;
     
     //AUX JOYSTICK
     public static final int SHOOT = 1;

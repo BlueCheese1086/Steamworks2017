@@ -26,6 +26,11 @@ public class Shooter implements PIDSource, PIDOutput {
     }
     public void shoot(){
         //To be written. How will shooter work? 
+    	
+    	shooter.set(0.5);
+    }
+    public void stop(){
+    	shooter.set(0);
     }
     @Override public void setPIDSourceType(PIDSourceType pidSource){
     }

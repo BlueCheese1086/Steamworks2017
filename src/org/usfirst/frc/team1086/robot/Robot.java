@@ -22,10 +22,14 @@ public class Robot extends IterativeRobot {
     HashMap<String, Runnable> actions = new HashMap();
     HashMap<String, Runnable> startActions = new HashMap();
     HashMap<String, Action> endActions = new HashMap();
+    HashMap<String, AutonomousRoutine> autoRoutines = new HashMap();
     AutonomousRoutine easyGear;
     AutonomousRoutine leftGear;
     AutonomousRoutine rightGear;
     AutonomousRoutine chaseLogan;
+    final String easy = "Easy Gear";
+    final String left = "Left Gear";
+    final String right = "Right Gear";
     CameraTurning targetFinder;
     Shooter flyWheel;
     ImageProcessing imageProcessing;
@@ -36,7 +40,7 @@ public class Robot extends IterativeRobot {
     Gyro navX;
     PIDController gearDriver;
     double gearDriveOutput;
-    SendableChooser <AutonomousRoutine> chooser = new SendableChooser<>();
+    SendableChooser <String> chooser = new SendableChooser<>();
     boolean buttonDown = false;
     boolean backward = false;
     @Override public void robotInit(){
@@ -49,9 +53,9 @@ public class Robot extends IterativeRobot {
         intake = new Intake();
         climber = new Climber();
         agitator = new Agitator();
-        chooser.addDefault("Logan Chaser", easyGear);
-        chooser.addObject("RightGear", rightGear);
-        chooser.addObject("Left Gear", leftGear);
+        chooser.addDefault("Logan Chaser", easy);
+        chooser.addObject("RightGear", right);
+        chooser.addObject("Left Gear", left);    
         SmartDashboard.putData("Autonomous Chooser", chooser);
         imageProcessing = new ImageProcessing();
         imageProcessing.setCameraTarget(targetFinder);
@@ -61,14 +65,17 @@ public class Robot extends IterativeRobot {
         compressor = new Compressor(RobotMap.COMPRESSOR);
         compressor.setClosedLoopControl(true);
         navX.reset();
-        gearDriver = new PIDController(-0.028, 0, -.056, 0, targetFinder.getTargetType(), v -> gearDriveOutput = v);
-		gearDriver.setInputRange(-180.0, 180.0);
-		gearDriver.setOutputRange(-1.0, 1.0);
+        gearDriver = new PIDController(-0.028, 0, -.056, 0, targetFinder.getTargetType(), v -> gearDriveOutput = v);		
+        gearDriver.setInputRange(-180.0, 180.0);
+		gearDriver.setOutputRange(-1, 1);
 		gearDriver.setAbsoluteTolerance(.1);
 		gearDriver.setContinuous(true);
 		gearDriver.enable();
 		LiveWindow.addActuator("Gear Driver", "PID", gearDriver);
         defineAutonomousActions();
+        autoRoutines.put(easy, easyGear);
+        autoRoutines.put(left, leftGear);
+        autoRoutines.put(right, rightGear);
     }
     public void defineAutonomousActions(){
         actions.put("Drive Forward", () -> drive.drive(0.5, 0, 0, false));
@@ -155,12 +162,8 @@ public class Robot extends IterativeRobot {
             }
         };
     }
-    @Override public void autonomousInit(){/*
-    	chooser.getSelected();
-    	chooser.addDefault("LOGAN CHASE", easyGear);
-    	System.out.println("TEST CODE: " + SmartDashboard.getString("TEStING", "uh oh"));
-        chooser.getSelected().begin();*/
-        easyGear.begin();
+    @Override public void autonomousInit(){
+    	autoRoutines.get(chooser.getSelected()).begin();
     }
     @Override public void autonomousPeriodic(){}
     @Override public void teleopInit(){
@@ -176,23 +179,21 @@ public class Robot extends IterativeRobot {
         buttonDown = leftStick.getRawButton(2);
         int mult = backward ? -1 : 1;
         if(leftStick.getRawButton(ButtonMap.SAFETY_DRIVE)){
-            if(!rightStick.getRawButton(ButtonMap.GYRO_DRIVE))
-                drive.drive(leftStick.getY() * mult, leftStick.getX() * mult, rightStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
-            else
-                drive.gyroDrive(leftStick.getY() * mult, leftStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
+        	drive.drive(leftStick.getY() * mult, leftStick.getX() * mult, rightStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         }
         else drive.drive(0, 0, 0, rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         if(auxiliaryStick.getRawButton(ButtonMap.SHOOT)){
             flyWheel.shoot();
         }
+        else {
+        	flyWheel.stop();
+        }
         if(auxiliaryStick.getRawButton(ButtonMap.COLLECT)){
-        	System.out.println("Hello");
             intake.motorIn();
         } 
         else {
             intake.motorOff();
-        }
-        
+        }        
         if(auxiliaryStick.getRawButton(ButtonMap.CLIMB)){
             climber.climb();
         }
@@ -205,11 +206,6 @@ public class Robot extends IterativeRobot {
         else { 
             agitator.stop();
         }
-        
-        if(rightStick.getRawButton(5)){
-        	drive.getGyro().reset();
-        	drive.resetPIDs();
-        }
         //Temp code
         if(rightStick.getRawButton(4)){
         	if(!drive.turnToAngle){
@@ -218,7 +214,7 @@ public class Robot extends IterativeRobot {
         	}
         	else {
         		drive.drive(0, 0, drive.getTurnPower(), false);
-        	}		
+        	}
         }
         if(rightStick.getRawButton(3)){
         	if(!drive.driveStraight){
@@ -226,7 +222,7 @@ public class Robot extends IterativeRobot {
         		drive.startDriveStraight();
         	}
         	else {
-        		drive.mecanum(leftStick.getY() * mult, leftStick.getX() * mult, drive.getTurnPower());
+        		drive.drive(leftStick.getY() * mult, leftStick.getX() * mult, drive.getTurnPower(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         	}
         }
         if(!rightStick.getRawButton(4) && !rightStick.getRawButton(3))
@@ -240,7 +236,7 @@ public class Robot extends IterativeRobot {
 			System.out.println("Distance: " + targetFinder.getDistance() + " " + (targetFinder.getDistance() < 40 && targetFinder.getDistance() != -1));
             System.out.println("DRIVE POWER: " + targetFinder.getDrivePower());
             System.out.println("GEAR TURN POWER: " + gearDriveOutput);
-			drive.mecanum(targetFinder.getDrivePower(), 0, gearDriveOutput * 0.5);
+			drive.mecanum(targetFinder.getDrivePower(), 0, gearDriveOutput);
 		}
     }
     private void outputData(){
@@ -249,5 +245,6 @@ public class Robot extends IterativeRobot {
         targetFinder.outputData();
         SmartDashboard.putNumber("Gear Drive Output", gearDriveOutput);
         SmartDashboard.putNumber("Gear Drive Speed", targetFinder.getDrivePower());
+        SmartDashboard.putNumber("NEW ANGLE", targetFinder.tt.c.getTargetAngle());
     }
 }

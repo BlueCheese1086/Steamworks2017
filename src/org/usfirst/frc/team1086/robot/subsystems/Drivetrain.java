@@ -109,18 +109,6 @@ public class Drivetrain {
         rightRearMecanum.set(leftY + rightX);
         rightRearColson.set(leftY + rightX);
     } 
-    public void gyroDrive(double leftY, double leftX, boolean trigger){
-        /*this.trigger.set(trigger);
-        if(!gyroEnabled){
-            setAngle(navX.getAngle());
-            gyroEnabled = true;
-        }
-        if(!trigger){
-            mecanum(leftY, leftX, getTurnPower());
-        } else {
-            colson(leftX, getTurnPower());
-        }*/
-    }
     public PIDController getActiveController(){
         if(turnToAngle)
             return turnToAngleController;

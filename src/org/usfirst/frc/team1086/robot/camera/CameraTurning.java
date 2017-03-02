@@ -14,13 +14,13 @@ public class CameraTurning implements CVDataHandler {
     PIDController turnController;
     PIDController driveController;
     PIDController strafeController;
-    TargetType tt = TargetType.BOILER;
+    public TargetType tt = TargetType.BOILER;
     static double kPturn = -0.015;
     static double kIturn = -0.00001;
     static double kDturn = -0.017;
     static double kPdrive = -0.21;
     static double kIdrive = -0.0;
-    static double kDdrive = -0.21;
+    static double kDdrive = -0.28;
     static double kToleranceDegrees = 0.5;
     static double kToleranceDistance = 0.1;
     double pidTurn;
@@ -84,7 +84,7 @@ public class CameraTurning implements CVDataHandler {
     public static enum TargetType implements PIDSource {
         BOILER(new HighGoalFinder()),
         GEAR(new GearGoalFinder());
-        CameraCalculator c;
+        public CameraCalculator c;
         PIDController driveController, turnController;
         TargetType(CameraCalculator c){
             this.c = c;
