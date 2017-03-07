@@ -36,8 +36,8 @@ public class Drivetrain {
         trigger = new Solenoid(RobotMap.TRIGGER);
         
         navX = new Gyro();
-        turnToAngleController = new PIDController(0.012, 0, 0.011, navX, v -> turnToAngleOutput = v);
-        driveStraightController = new PIDController(0.06, 0, 0, navX, v -> driveStraightOutput = v);
+        turnToAngleController = new PIDController(0.058, 0, 0.048, navX, v -> turnToAngleOutput = v);
+        driveStraightController = new PIDController(0.063, 0, 0, navX, v -> driveStraightOutput = v);
     }
     public void drive(double leftY, double leftX, double rightX, boolean trigger){
         this.trigger.set(trigger);
@@ -56,7 +56,7 @@ public class Drivetrain {
             turnToAngleController.setAbsoluteTolerance(1.5);
             turnToAngleController.setContinuous(true);
             turnToAngleController.setInputRange(-180, 180);
-            turnToAngleController.setOutputRange(-0.8, 0.8);
+            turnToAngleController.setOutputRange(-0.6, 0.6);
             turnToAngleController.enable();
             turnToAngle = true;
         }
@@ -89,15 +89,15 @@ public class Drivetrain {
     }
     
     public void mecanum(double leftY, double leftX, double rightX){
-    	System.out.println("Drive speed: " + leftY);
-        leftFrontMecanum.set(leftY - rightX - leftX);
-        leftFrontColson.set(leftY - rightX - leftX);
-        rightFrontMecanum.set(leftY + rightX + leftX);
-        rightFrontColson.set(leftY + rightX + leftX);
-        leftRearMecanum.set(leftY - rightX + leftX);
-        leftRearColson.set(leftY - rightX + leftX);
-        rightRearMecanum.set(leftY + rightX - leftX);
-        rightRearColson.set(leftY + rightX - leftX);
+        leftFrontMecanum.set(0.9 * (leftY - rightX - leftX));
+        leftFrontColson.set(0.9 * (leftY - rightX - leftX));
+        rightFrontMecanum.set(0.9 * (leftY + rightX + leftX));
+        rightFrontColson.set(0.9 * (leftY + rightX + leftX));
+        leftRearMecanum.set(0.9 * (leftY - rightX + leftX));
+        leftRearColson.set(0.9 * (leftY - rightX + leftX));
+        rightRearMecanum.set(0.9 * (leftY + rightX - leftX));
+        rightRearColson.set(0.9 * (leftY + rightX - leftX));
+        
     }
     public void colson(double leftY, double rightX){
         leftFrontMecanum.set(leftY - rightX);
@@ -123,6 +123,5 @@ public class Drivetrain {
     public void outputPIDData(){
         SmartDashboard.putNumber("PID Turn Rate", getTurnPower());
         SmartDashboard.putNumber("Set Point", turnToAngleController.getSetpoint());
-        SmartDashboard.putNumber("_Error", turnToAngleController.getError());
     }
 }

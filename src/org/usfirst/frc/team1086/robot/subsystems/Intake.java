@@ -12,8 +12,8 @@ public class Intake {
         intake2 = new CANTalon(RobotMap.INTAKE2);
     }
     public void motorIn(){
-        intake1.set(1);
-        intake2.set(1);
+        intake1.set(0.5);
+        intake2.set(0.5);
     }
     public void motorOff(){
         intake1.set(0);

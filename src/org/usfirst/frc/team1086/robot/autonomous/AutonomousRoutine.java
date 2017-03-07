@@ -8,8 +8,5 @@ public abstract class AutonomousRoutine extends AutonomousCommander {
     public void begin(){
     	init();
         start();
-        new ASyncDelayedTask(150000, () -> {
-            stop();
-        }).start();
     }
 }

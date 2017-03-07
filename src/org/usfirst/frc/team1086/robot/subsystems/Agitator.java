@@ -10,7 +10,8 @@ public class Agitator {
         agitator = new CANTalon(RobotMap.AGITATOR);
     }
     public void agitate(){
-        agitator.set(1);
+    	double dir = (((long)System.currentTimeMillis() % 6000) / 3000) * 2 - 1;
+        agitator.set(0.75 * dir);
     }
     public void stop(){
         agitator.set(0);

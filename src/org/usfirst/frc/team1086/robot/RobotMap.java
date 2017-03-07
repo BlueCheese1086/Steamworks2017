@@ -15,9 +15,11 @@ public class RobotMap {
     public static final int CLIMB2 = 12; 
     public static final int AGITATOR = 13;
     public static final int HOOD = 14;
-    public static final int SHOOTER = 10;
+    public static final int SHOOTER1 = 10;
+    public static final int SHOOTER2 = 18;
 
     public static final int TRIGGER = 1;
+    public static final int FLAP = 2;
     
     public static final int LEFT_STICK = 0;
     public static final int RIGHT_STICK = 1;
