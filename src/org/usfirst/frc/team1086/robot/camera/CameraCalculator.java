@@ -9,7 +9,7 @@ import org.opencv.core.MatOfPoint;
 
 public abstract class CameraCalculator implements PIDSource, CVDataHandler {
     ArrayList<Sighting> visionObjects = new ArrayList<>();
-    double distance, angle;
+    public double distance, angle, rawVAngle;
     public static double TARGET_HEIGHT;
     public CameraCalculator(double height){
         TARGET_HEIGHT = height;
@@ -30,6 +30,7 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
             double midY = visionObjects.stream().mapToDouble(p -> (p.centerY - p.height / 2) / (visionObjects.size())).sum();
             //System.out.println("Mid Y: " + midY);
             double angleFromCameraToTarget = getYAngle(midY);
+            rawVAngle = angleFromCameraToTarget;
             //System.out.println("Angle to Target: " + angleFromCameraToTarget);
             double verticalAngle = angleFromCameraToTarget + Constants.CAMERA_VERTICAL_ANGLE;
             //System.out.println("Vert Angle: " + verticalAngle * 180 / Math.PI);
@@ -68,19 +69,23 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
         return Math.atan((cy - y) / VF);
     }
     public double getTargetAngle(){
-    	return 0;
-        /*if(visionObjects.size() < 2)
+        if(visionObjects.size() < 2)
             return 0;
         else {
 	        visionObjects = new ArrayList<Sighting>(visionObjects.stream().sorted((a, b) -> { return a.area > b.area ? 1 : a.area < b.area ? -1 : 0; })
 	                .limit(2).sorted((a, b) -> {return a.x > b.x ? 1 : b.x > a.x ? -1 : 0;}).collect(Collectors.toList()));
 	        double angle1 = -getXAngle(visionObjects.get(0).x + visionObjects.get(0).width);
 	        double angle2 = -getXAngle(visionObjects.get(1).x);
+	        double distance = 0;
+	        if(angle1 > angle2){
+	        	distance = distance(visionObjects.get(0).y);
+	        } else distance = distance(visionObjects.get(1).y);
 	        double theta = Math.abs(angle1 - angle2);
-	        double a = distance(visionObjects.get(0).centerY - visionObjects.get(0).height / 2);
-	        double b = distance(visionObjects.get(1).centerY - visionObjects.get(1).height / 2);
-	        return acot(a / (b * Math.sin(theta)) - 1 / Math.tan(theta));
-        }*/
+	        double asin = Math.asin(distance * Math.sin(theta) / 6);
+	        if(angle2 > angle1)
+	        	asin = Math.PI - asin;
+	        return asin + theta / 2;
+        }
     }
     @Override public double pidGet(){
         return angle;

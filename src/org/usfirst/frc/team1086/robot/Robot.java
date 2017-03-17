@@ -47,6 +47,7 @@ public class Robot extends IterativeRobot {
     double gearDriveOutput;
     SendableChooser<String> chooser = new SendableChooser<>();
     Timer t;
+    Encoders encoders;
     boolean buttonDown = false;
     boolean backward = false;
     @Override public void robotInit(){
@@ -66,20 +67,21 @@ public class Robot extends IterativeRobot {
         chooser.addObject("Drive Forward for 8 seconds", forward8);
         chooser.addObject("Drive Forward for 15 seconds", forward15);
         SmartDashboard.putData("Autonomous Chooser", chooser);
-        //imageProcessing = new ImageProcessing();
-        //imageProcessing.setCameraTarget(targetFinder);
-        //imageProcessing.start();
+        imageProcessing = new ImageProcessing();
+        imageProcessing.setCameraTarget(targetFinder);
+        imageProcessing.start();
         targetFinder.setTargetType(TargetType.GEAR);
         navX = new Gyro();
         compressor = new Compressor(RobotMap.COMPRESSOR);
         compressor.setClosedLoopControl(true);
         navX.reset();
-        gearDriver = new PIDController(-0.0265, 0, -.056, 0, targetFinder.getTargetType(), v -> gearDriveOutput = v);		
+        gearDriver = new PIDController(-0.029, 0, -.050, 0, targetFinder.getTargetType(), v -> gearDriveOutput = v);		
         gearDriver.setInputRange(-180.0, 180.0);
 		gearDriver.setOutputRange(-1, 1);
 		gearDriver.setAbsoluteTolerance(.1);
 		gearDriver.setContinuous(true);
 		gearDriver.enable();
+		encoders = new Encoders();
 		LiveWindow.addActuator("Gear Driver", "PID", gearDriver);
         defineAutonomousActions();
         autoRoutines.put(easy, easyGear);
@@ -278,5 +280,7 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putNumber("Gear Drive Output", gearDriveOutput);
         SmartDashboard.putNumber("Gear Drive Speed", targetFinder.getDrivePower());
         SmartDashboard.putNumber("NEW ANGLE", targetFinder.tt.c.getTargetAngle());
+        System.out.println("Distance Traveled: " + encoders.getDistance());
+        SmartDashboard.putNumber("Config angle: ", CameraConfig.getYAngle(targetFinder.tt.c.rawVAngle, 6, 72));
     }
 }

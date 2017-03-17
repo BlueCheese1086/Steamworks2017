@@ -22,7 +22,7 @@ public class GearGoalFinder extends CameraCalculator {
     }
     @Override public boolean estimationIsGood(){
     	//return true;
-        return visionObjects.size() == 2 && distance >= 0 && distance <= 240 && Math.abs(angle) < 90;
+        return visionObjects.size() >= 2 && distance >= 0 && distance <= 240 && Math.abs(angle) < 90;
     }
     @Override public void setPIDSourceType(PIDSourceType pidSource){
     }
