@@ -5,14 +5,18 @@ import com.ctre.CANTalon;
 import org.usfirst.frc.team1086.robot.RobotMap;
 
 public class Intake {
-    CANTalon intake;
+    CANTalon intake1;
+    CANTalon intake2;
     public Intake(){
-        intake = new CANTalon(RobotMap.INTAKE);
+        intake1 = new CANTalon(RobotMap.INTAKE1);
+        intake2 = new CANTalon(RobotMap.INTAKE2);
     }
     public void motorIn(){
-        intake.set(1);
+        intake1.set(0.5);
+        intake2.set(0.5);
     }
     public void motorOff(){
-        intake.set(0);
+        intake1.set(0);
+        intake2.set(0);
     }
 }

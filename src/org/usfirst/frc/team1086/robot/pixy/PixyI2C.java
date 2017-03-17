@@ -12,12 +12,10 @@ public class PixyI2C {
         pixy = new I2C(port, 0x54);
         this.packets = packets;
     }   
-    
     public int convert(byte upper, byte lower){
-        //Converts the raw data to readable inteters
+        //Converts the raw data to readable integers
         return (((int)upper & 0xff) << 8) | ((int)lower & 0xff);
     }
-  
     public PixyPacket readPacket(int signature) throws Exception {
         int checksum, sig;
         byte[] rawData = new byte[32];
@@ -35,7 +33,7 @@ public class PixyI2C {
                 //Actually need 2 of 0xaa55 to be a valid data stream
                 if(syncWord != 0xaa55){ //shift back if only got 1 0xaa55
                     i -= 2;
-                }
+                }//5123
                 checksum = convert(rawData[i+5], rawData[i+4]);
                 sig = convert(rawData[i+7], rawData[i+6]);
                 if(sig <= 0 || sig > packets.length){

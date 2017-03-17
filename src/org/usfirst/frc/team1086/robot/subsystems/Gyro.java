@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Gyro implements PIDSource {
     private static AHRS navX;
-    
     public Gyro(){
         if(navX == null){
             try {

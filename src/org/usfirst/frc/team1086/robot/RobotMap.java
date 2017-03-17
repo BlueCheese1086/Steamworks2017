@@ -9,14 +9,17 @@ public class RobotMap {
     public static final int RIGHT_REAR_MECANUM = 7;
     public static final int RIGHT_REAR_COLSON = 8;
     
-    public static final int SHOOTER = 9;
-    public static final int INTAKE = 10;
+    public static final int INTAKE1 = 16;
+    public static final int INTAKE2 = 17;
     public static final int CLIMB1 = 11; 
     public static final int CLIMB2 = 12; 
     public static final int AGITATOR = 13;
     public static final int HOOD = 14;
+    public static final int SHOOTER1 = 10;
+    public static final int SHOOTER2 = 18;
 
     public static final int TRIGGER = 1;
+    public static final int FLAP = 2;
     
     public static final int LEFT_STICK = 0;
     public static final int RIGHT_STICK = 1;
@@ -28,4 +31,6 @@ public class RobotMap {
     public static final int HOOD_ENCODER = 0;
     
     public static final int GYRO = 0;
+    
+    public static final int COMPRESSOR = 0;
 }

@@ -38,7 +38,7 @@ public class DriveEncoder {
     }
     public static enum Wheel {
         COLSON(1.0), 
-        MECANUM(2.0);
+        MECANUM(1.8125);
         final double radius, circumference;
         Wheel(double radius){
             this.radius = radius;

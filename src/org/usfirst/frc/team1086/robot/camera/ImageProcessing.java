@@ -30,22 +30,30 @@ public class ImageProcessing {
     public ImageProcessing(){
     }
     public void start(){
-        new Thread(() -> {
-            AxisCamera camera = CameraServer.getInstance().addAxisCamera("10.10.86.22");
-            camera.setResolution(320, 240);
-            CameraServer.getInstance().startAutomaticCapture(camera);
-            CvSink cvSink = CameraServer.getInstance().getVideo();
-            CvSource outputVideo = CameraServer.getInstance().putVideo("Target Only", 320, 240);
-            CvSource rawInput = CameraServer.getInstance().putVideo("Raw Video", 320, 240);
-            Mat source = new Mat();
-            Mat output = new Mat();
-            while (true) {
-                cvSink.grabFrame(source);
-                openCVProcess(source, output);
-                rawInput.putFrame(source);
-                outputVideo.putFrame(output);
+        new Thread(){
+        	@Override public void run(){
+                AxisCamera camera = CameraServer.getInstance().addAxisCamera("10.10.86.22");
+                camera.setResolution(320, 240);
+                try {
+	                /*while(!camera.isConnected()){
+	                	System.out.println("Camera not connected yet... retrying in 1 second");
+	                	sleep(1000);
+	                	System.out.println(camera.getName());
+	                	System.out.println(camera.isConnected());
+	                }
+	                System.out.println("Stacey, the camera is connected now. You can restart.");*/
+	                CameraServer.getInstance().startAutomaticCapture(camera);
+	                CvSink cvSink = CameraServer.getInstance().getVideo();
+	                Mat source = new Mat();
+	                Mat output = new Mat();
+	                while (!interrupted()) {
+	                	cvSink.grabFrame(source);
+	                	openCVProcess(source, output);
+		                sleep(1);
+	                }
+                } catch (Exception e){}
             }
-        }).start();
+        }.start();
     }
     public void setCameraTarget(CVDataHandler handler){
         this.handler = handler;
@@ -67,13 +75,13 @@ public class ImageProcessing {
 
         //FILTER CONTOURS
         ArrayList<MatOfPoint> filterContoursContours = findContoursOutput;
-        double filterContoursMinArea = 20;
+        double filterContoursMinArea = 50;
         double filterContoursMinPerimeter = 0.0;
         double filterContoursMinWidth = 0;
         double filterContoursMaxWidth = 700.0;
         double filterContoursMinHeight = 0;
         double filterContoursMaxHeight = 1000;
-        double[] filterContoursSolidity = {0, 100.0};
+        double[] filterContoursSolidity = {30, 100.0};
         double filterContoursMaxVertices = 1000000;
         double filterContoursMinVertices = 0;
         double filterContoursMinRatio = 0;

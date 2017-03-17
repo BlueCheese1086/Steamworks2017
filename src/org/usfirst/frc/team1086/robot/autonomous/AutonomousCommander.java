@@ -9,16 +9,6 @@ public class AutonomousCommander {
     int section;
     double endTime;
     boolean started = false;
-    Thread manager = new Thread(){
-        @Override public void run(){
-            tick();
-            try {
-                sleep(10);
-                if(started)
-                    run();
-            } catch (Exception e) {}
-        }
-    };
     public AutonomousCommander(){}
     public void addSection(double time, Runnable ru){
         addSection(time, ru, () -> {});
@@ -30,12 +20,7 @@ public class AutonomousCommander {
         }, () -> {});
     }
     public void addSection(AutonomousRoutine ar){
-    	for(Integer i : ar.sectionTimes.keySet()){
-    		sectionTimes.put(i, ar.sectionTimes.get(i));
-    		sectionStartActions.put(i, ar.sectionStartActions.get(i));
-    		sectionActions.put(i, ar.sectionActions.get(i));
-    	}
-    	//addSection(() -> { return false; }, () -> { ar.begin(); });
+    	addSection(() -> { return !ar.started; }, () -> { ar.begin(); });
     }
     public void addSection(double time, Runnable ru, Runnable start){
         sectionTimes.put(sectionTimes.size(), time);
@@ -51,7 +36,8 @@ public class AutonomousCommander {
     public void tick(){
         if(System.currentTimeMillis() >= endTime)
             next();
-        sectionActions.get(section).run();
+        if(sectionActions.get(section) != null)
+        	sectionActions.get(section).run();
     }
     public void start(){
         if(sectionTimes.values().stream().mapToDouble(s -> s).sum() > 15000)
@@ -61,15 +47,14 @@ public class AutonomousCommander {
         sectionStartActions.put(sectionStartActions.size(), () -> stop());
         goToSection(0);
         started = true;
-        if (!manager.isAlive()) {
-            manager.start();
-        }
     }
     public void stop(){
-        started = false;
-        sectionTimes.remove(sectionTimes.size() - 1);
-        sectionActions.remove(sectionActions.size() - 1);
-        sectionStartActions.remove(sectionStartActions.size() - 1);
+    	if(started){
+	        started = false;
+	        sectionTimes.remove(sectionTimes.size() - 1);
+	        sectionActions.remove(sectionActions.size() - 1);
+	        sectionStartActions.remove(sectionStartActions.size() - 1);
+    	}
     }
     public void goToSection(int n){
         section = n;
