@@ -13,7 +13,7 @@ import org.usfirst.frc.team1086.robot.RobotMap;
 public class Shooter implements PIDSource, PIDOutput {
     CANTalon shooter1, shooter2;
     PIDController controller = new PIDController(0, 0, 0, this, this);
-    Solenoid flap = new Solenoid(RobotMap.FLAP);
+    //Solenoid flap = new Solenoid(RobotMap.FLAP);
     public Shooter(){
         shooter1 = new CANTalon(RobotMap.SHOOTER1);
         shooter2 = new CANTalon(RobotMap.SHOOTER2);
@@ -30,12 +30,12 @@ public class Shooter implements PIDSource, PIDOutput {
     }
     public void shoot(){
         //To be written. How will shooter work? 
-    	flap.set(true);
+    	//flap.set(true);
     	shooter1.set(.75);
     	shooter2.set(.75);
     }
     public void stop(){
-    	flap.set(false);
+    	//flap.set(false);
     	shooter1.set(0);
     	shooter2.set(0);
     }

@@ -11,7 +11,7 @@ public class ButtonMap {
     public static final int GEAR_DRIVE = 5;
     
     //AUX JOYSTICK
-    public static final int SHOOT = 1;
+    public static final int EVICT = 1;
     public static final int COLLECT = 2;
     public static final int CLIMB = 3;
 }

@@ -60,6 +60,7 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
     public double getXAngle(double x){
         double HF = (Constants.MAX_X_PIXELS / 2) / Math.tan(Constants.CAMERA_HFOV / 2);
         double cx = (Constants.MAX_X_PIXELS / 2) - 0.5;
+        SmartDashboard.putNumber("RAW ANGLE: ", Math.atan((cx - x) / HF));
         return Math.atan((cx - x) / HF);
     }
     public double getYAngle(double y){
@@ -74,6 +75,8 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
         else {
 	        visionObjects = new ArrayList<Sighting>(visionObjects.stream().sorted((a, b) -> { return a.area > b.area ? 1 : a.area < b.area ? -1 : 0; })
 	                .limit(2).sorted((a, b) -> {return a.x > b.x ? 1 : b.x > a.x ? -1 : 0;}).collect(Collectors.toList()));
+	        if(visionObjects.size() != 2)
+	        	return 0;
 	        double angle1 = -getXAngle(visionObjects.get(0).x + visionObjects.get(0).width);
 	        double angle2 = -getXAngle(visionObjects.get(1).x);
 	        double distance = 0;

@@ -39,7 +39,8 @@ public class CameraTurning implements CVDataHandler {
                 return PIDSourceType.kDisplacement;
             }
             @Override public double pidGet(){
-                return TargetType.GEAR.c.getTargetAngle();
+            	return 0;
+               // return TargetType.GEAR.c.getTargetAngle();
             }
         }, d -> {});
         strafeController.setInputRange(-45, 45);
@@ -98,7 +99,7 @@ public class CameraTurning implements CVDataHandler {
                 }
             }, d -> {});
             driveController.setInputRange(0, 20);
-            driveController.setOutputRange(-0.5, 0.5);
+            driveController.setOutputRange(-0.3, 0.3);
             driveController.setAbsoluteTolerance(kToleranceDistance);
             driveController.setSetpoint(0.25);
             driveController.setContinuous(false);

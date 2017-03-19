@@ -123,5 +123,6 @@ public class Drivetrain {
     public void outputPIDData(){
         SmartDashboard.putNumber("PID Turn Rate", getTurnPower());
         SmartDashboard.putNumber("Set Point", turnToAngleController.getSetpoint());
+        SmartDashboard.putNumber("Encoder distance", (leftRearColson.getEncPosition() + rightRearColson.getEncPosition()) / 2);
     }
 }
