@@ -12,12 +12,10 @@ public class PixyI2C {
         pixy = new I2C(port, 0x54);
         this.packets = packets;
     }   
-    
     public int convert(byte upper, byte lower){
-        //Converts the raw data to readable inteters
+        //Converts the raw data to readable integers
         return (((int)upper & 0xff) << 8) | ((int)lower & 0xff);
     }
-  
     public PixyPacket readPacket(int signature) throws Exception {
         int checksum, sig;
         byte[] rawData = new byte[32];

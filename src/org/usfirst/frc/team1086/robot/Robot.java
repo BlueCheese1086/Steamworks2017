@@ -20,6 +20,7 @@ public class Robot extends IterativeRobot {
     Joystick leftStick;
     Joystick rightStick;
     Joystick auxiliaryStick;
+    GearHolder evictor;
     HashMap<String, Runnable> actions = new HashMap();
     HashMap<String, Runnable> startActions = new HashMap();
     HashMap<String, Action> endActions = new HashMap();
@@ -47,10 +48,13 @@ public class Robot extends IterativeRobot {
     double gearDriveOutput;
     SendableChooser<String> chooser = new SendableChooser<>();
     Timer t;
+    Encoders encoders;
     boolean buttonDown = false;
     boolean backward = false;
+    boolean gearDrive = false;
     @Override public void robotInit(){
         drive = new Drivetrain();
+        evictor = new GearHolder();
         leftStick = new Joystick(RobotMap.LEFT_STICK);
         rightStick = new Joystick(RobotMap.RIGHT_STICK);
         auxiliaryStick = new Joystick(RobotMap.AUXILIARY_STICK);
@@ -66,20 +70,21 @@ public class Robot extends IterativeRobot {
         chooser.addObject("Drive Forward for 8 seconds", forward8);
         chooser.addObject("Drive Forward for 15 seconds", forward15);
         SmartDashboard.putData("Autonomous Chooser", chooser);
-        //imageProcessing = new ImageProcessing();
-        //imageProcessing.setCameraTarget(targetFinder);
-        //imageProcessing.start();
+        imageProcessing = new ImageProcessing();
+        imageProcessing.setCameraTarget(targetFinder);
+        imageProcessing.start();
         targetFinder.setTargetType(TargetType.GEAR);
         navX = new Gyro();
         compressor = new Compressor(RobotMap.COMPRESSOR);
         compressor.setClosedLoopControl(true);
         navX.reset();
-        gearDriver = new PIDController(-0.0265, 0, -.056, 0, targetFinder.getTargetType(), v -> gearDriveOutput = v);		
+        gearDriver = new PIDController(-0.025, 0, -.0583, 0, targetFinder.getTargetType(), v -> gearDriveOutput = v);		
         gearDriver.setInputRange(-180.0, 180.0);
 		gearDriver.setOutputRange(-1, 1);
 		gearDriver.setAbsoluteTolerance(.1);
 		gearDriver.setContinuous(true);
 		gearDriver.enable();
+		encoders = new Encoders();
 		LiveWindow.addActuator("Gear Driver", "PID", gearDriver);
         defineAutonomousActions();
         autoRoutines.put(easy, easyGear);
@@ -94,13 +99,24 @@ public class Robot extends IterativeRobot {
         actions.put("Drive Backwards", () -> drive.drive(-Math.sqrt(0.5), 0, 0, false));
         actions.put("Stop Fast", () -> drive.drive(-0.2, 0, 0, false));
         actions.put("Stop", () -> drive.drive(0, 0, 0, false));
+        actions.put("Evict", () -> { evictor.evict(); });
+        actions.put("Hold", () -> { evictor.hold(); });
+        actions.put("Drive Straight", () -> {
+        	System.out.println("HEY THERE!!!");
+    		drive.drive(Math.sqrt(0.3), 0, drive.getTurnPower(), false);
+        });
         startActions.put("Set Target Turn To 60 Degrees", () -> {
             drive.setTurnToAngle(drive.getGyro().getAngle() + 60);
         });
         startActions.put("Set Target Turn To 300 Degrees", () -> {
             drive.setTurnToAngle(drive.getGyro().getAngle() - 60);
         });
+        startActions.put("Enable Straight Drive", () -> {
+    		drive.getGyro().reset();
+    		drive.startDriveStraight();
+        });
         startActions.put("Enable Gear Drive", () -> {
+        	gearDriver.reset();
         	gearDriver.setSetpoint(0);
         	gearDriver.enable();
         });
@@ -143,7 +159,8 @@ public class Robot extends IterativeRobot {
         chaseLogan = new AutonomousRoutine(){
         	@Override public void init(){
         		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
-                addSection(300, actions.get("Stop Fast"));
+                addSection(150, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
+                addSection(100, actions.get("Stop Fast"));
                 addSection(500, actions.get("Stop"));
         	}
         };
@@ -151,8 +168,11 @@ public class Robot extends IterativeRobot {
             @Override public void init(){
             	addSection(endActions.get("Drive to Sight"));
         		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
+                addSection(150, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
                 addSection(300, actions.get("Stop Fast"));
                 addSection(500, actions.get("Stop"));
+                addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
+                addSection(40, actions.get("Hold"));
                 addSection(3000, actions.get("Stop"));
                 /*addSection(1000, actions.get("Drive Backward"));
                 addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 60 Degrees"));
@@ -223,7 +243,7 @@ public class Robot extends IterativeRobot {
         else drive.drive(0, 0, 0, rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         if(auxiliaryStick.getRawButton(ButtonMap.COLLECT)){
             intake.motorIn();
-        } 
+        }
         else {
             intake.motorOff();
         }        
@@ -233,13 +253,11 @@ public class Robot extends IterativeRobot {
         else {
             climber.stop();
         }
-        if(auxiliaryStick.getRawButton(ButtonMap.SHOOT)){
-            agitator.agitate();
-            flyWheel.shoot();
+        if(auxiliaryStick.getRawButton(ButtonMap.EVICT)){
+            evictor.evict();
         }
         else { 
-            agitator.stop();
-            flyWheel.stop();
+            evictor.hold();
         }
         //Temp code
         if(rightStick.getRawButton(ButtonMap.RAPID_TURN)){
@@ -263,13 +281,17 @@ public class Robot extends IterativeRobot {
         if(!rightStick.getRawButton(ButtonMap.RAPID_TURN) && !rightStick.getRawButton(ButtonMap.STRAIGHT_DRIVE))
         	drive.resetPIDs();
         
-        if(rightStick.getRawButton(ButtonMap.GEAR_DRIVE)){
+        if(rightStick.getRawButton(ButtonMap.GEAR_DRIVE) && gearDrive){
 			if(targetFinder.getTargetType() != CameraTurning.TargetType.GEAR)
 				targetFinder.setTargetType(CameraTurning.TargetType.GEAR);
 			if(!gearDriver.isEnabled())
 				gearDriver.enable();
-			drive.mecanum(targetFinder.getDrivePower(), 0, gearDriveOutput);
+			drive.mecanum(leftStick.getY() * mult, 0, gearDriver.get());
 		}
+        if(rightStick.getRawButton(ButtonMap.GEAR_DRIVE) && !gearDrive){
+        	gearDriver.reset();
+        }
+        gearDrive = rightStick.getRawButton(ButtonMap.GEAR_DRIVE);
     }
     private void outputData(){
         navX.outputData();
@@ -277,6 +299,8 @@ public class Robot extends IterativeRobot {
         targetFinder.outputData();
         SmartDashboard.putNumber("Gear Drive Output", gearDriveOutput);
         SmartDashboard.putNumber("Gear Drive Speed", targetFinder.getDrivePower());
-        SmartDashboard.putNumber("NEW ANGLE", targetFinder.tt.c.getTargetAngle());
+        //SmartDashboard.putNumber("NEW ANGLE", targetFinder.tt.c.getTargetAngle());
+        System.out.println("Distance Traveled: " + encoders.getDistance());
+        SmartDashboard.putNumber("Config angle: ", CameraConfig.getYAngle(targetFinder.tt.c.rawVAngle, 6, 72));
     }
 }
