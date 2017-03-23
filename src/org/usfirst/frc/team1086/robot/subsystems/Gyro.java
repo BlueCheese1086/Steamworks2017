@@ -13,6 +13,7 @@ public class Gyro implements PIDSource {
         if(navX == null){
             try {
                 navX = new AHRS(SerialPort.Port.kMXP);
+                System.out.println("Hey, I just instantiated the navx! Enjoy!");
             } catch(Exception e){e.printStackTrace();}
         }
     }   

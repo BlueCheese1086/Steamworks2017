@@ -54,6 +54,7 @@ public class Robot extends IterativeRobot {
     boolean gearDrive = false;
     @Override public void robotInit(){
         drive = new Drivetrain();
+        drive.resetEncoders();
         evictor = new GearHolder();
         leftStick = new Joystick(RobotMap.LEFT_STICK);
         rightStick = new Joystick(RobotMap.RIGHT_STICK);
@@ -64,12 +65,6 @@ public class Robot extends IterativeRobot {
         t = new Timer();
         climber = new Climber();
         agitator = new Agitator();
-        chooser.addDefault("Logan Chaser", easy);
-        chooser.addObject("RightGear", right);
-        chooser.addObject("Left Gear", left);  
-        chooser.addObject("Drive Forward for 8 seconds", forward8);
-        chooser.addObject("Drive Forward for 15 seconds", forward15);
-        SmartDashboard.putData("Autonomous Chooser", chooser);
         imageProcessing = new ImageProcessing();
         imageProcessing.setCameraTarget(targetFinder);
         imageProcessing.start();
@@ -92,6 +87,12 @@ public class Robot extends IterativeRobot {
         autoRoutines.put(right, rightGear);
         autoRoutines.put(forward8, driveSlowlyForward);
         autoRoutines.put(forward15, driveForward);
+        chooser.addObject("Logan Chaser", easy);
+        chooser.addObject("RightGear", right);
+        chooser.addDefault("Left Gear", left);  
+        chooser.addObject("Drive Forward for 8 seconds", forward8);
+        chooser.addObject("Drive Forward for 15 seconds", forward15);
+        SmartDashboard.putData("Autonomous Chooser", chooser);
     }
     public void defineAutonomousActions(){
         actions.put("Drive Forward", () -> drive.drive(Math.sqrt(0.5), 0, 0, false));
@@ -102,7 +103,6 @@ public class Robot extends IterativeRobot {
         actions.put("Evict", () -> { evictor.evict(); });
         actions.put("Hold", () -> { evictor.hold(); });
         actions.put("Drive Straight", () -> {
-        	System.out.println("HEY THERE!!!");
     		drive.drive(Math.sqrt(0.3), 0, drive.getTurnPower(), false);
         });
         startActions.put("Set Target Turn To 60 Degrees", () -> {
@@ -115,10 +115,19 @@ public class Robot extends IterativeRobot {
     		drive.getGyro().reset();
     		drive.startDriveStraight();
         });
+        startActions.put("Set Drive Distance to 104", () -> {
+        	drive.resetEncoders();
+        	drive.startEncoderDrive(-70);
+        });
         startActions.put("Enable Gear Drive", () -> {
         	gearDriver.reset();
         	gearDriver.setSetpoint(0);
         	gearDriver.enable();
+        });
+        endActions.put("Drive to Distance", () -> {
+        	drive.mecanum(drive.encoderOutput, 0, 0);
+        	System.out.println("Driving " + drive.encoderController.getError() + " inches!");
+        	return Math.abs(drive.encoderController.getError()) < 1;
         });
         endActions.put("Reset PID", () -> {
             drive.resetPIDs();
@@ -173,30 +182,39 @@ public class Robot extends IterativeRobot {
                 addSection(500, actions.get("Stop"));
                 addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
                 addSection(40, actions.get("Hold"));
-                addSection(3000, actions.get("Stop"));
-                /*addSection(1000, actions.get("Drive Backward"));
-                addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 60 Degrees"));
-                addSection(1500, actions.get("Drive Forward"));
-                addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 300 Degrees"));
-            	addSection(1000000, actions.get("Drive Forward"));*/
+                addSection(310000, actions.get("Stop"));
             }
         };
         leftGear = new AutonomousRoutine(){
             @Override public void init(){
-                addSection(2000, actions.get("Drive Forward"));
-                addSection(endActions.get("reset PID"));
+                addSection(endActions.get("Drive to Distance"), startActions.get("Set Drive Distance to 104"));
+                addSection(endActions.get("Reset PID"));
                 addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 60 Degrees"));
-                addSection(endActions.get("reset PID"));
-                addSection(chaseLogan);
+                addSection(endActions.get("Reset PID"));
+            	addSection(endActions.get("Drive to Sight"));
+        		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
+                addSection(150, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
+                addSection(300, actions.get("Stop Fast"));
+                addSection(500, actions.get("Stop"));
+                addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
+                addSection(40, actions.get("Hold"));
+                addSection(310000, actions.get("Stop"));
             }
         };
         rightGear = new AutonomousRoutine(){
             @Override public void init(){
-                addSection(2000, actions.get("Drive Forward"));
-                addSection(endActions.get("reset PID"));
+                addSection(endActions.get("Drive to Distance"), startActions.get("Set Drive Distance to 104"));
+                addSection(endActions.get("Reset PID"));
                 addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 300 Degrees"));
-                addSection(endActions.get("reset PID"));
-                addSection(chaseLogan);
+                addSection(endActions.get("Reset PID"));
+            	addSection(endActions.get("Drive to Sight"));
+        		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
+                addSection(150, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
+                addSection(300, actions.get("Stop Fast"));
+                addSection(500, actions.get("Stop"));
+                addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
+                addSection(40, actions.get("Hold"));
+                addSection(310000, actions.get("Stop"));
             }
         };
         driveSlowlyForward = new AutonomousRoutine(){
@@ -213,6 +231,13 @@ public class Robot extends IterativeRobot {
         };
     }
     @Override public void autonomousInit(){
+    	if(false){
+    		double dis = 71.5;
+    		Constants.CAMERA_HORIZONTAL_ANGLE = CameraConfig.getXAngle(targetFinder.tt.c.rawXAngle, dis, Constants.CAMERA_HORIZONTAL_OFFSET);
+    		Constants.CAMERA_VERTICAL_ANGLE = CameraConfig.getYAngle(targetFinder.tt.c.rawVAngle, Constants.HIGH_GOAL_HEIGHT - Constants.CAMERA_ELEVATION, dis);
+    		System.out.println(Constants.CAMERA_HORIZONTAL_ANGLE * 180.0 / Math.PI);
+    		System.out.println(Constants.CAMERA_VERTICAL_ANGLE * 180.0 / Math.PI);
+    	}
     	selected = autoRoutines.get(chooser.getSelected());
     	selected.begin();
     	//t.reset();
@@ -225,8 +250,9 @@ public class Robot extends IterativeRobot {
     	//else drive.mecanum(0, 0, 0);
     }
     @Override public void teleopInit(){
-    	drive.setTurnToAngle(180);
+    	drive.setTurnToAngle(60);
     	autoRoutines.get(chooser.getSelected()).stop();
+    	drive.resetEncoders();
     }
     @Override public void testPeriodic(){
     	teleopPeriodic();
@@ -260,13 +286,23 @@ public class Robot extends IterativeRobot {
             evictor.hold();
         }
         //Temp code
-        if(rightStick.getRawButton(ButtonMap.RAPID_TURN)){
+        if(leftStick.getRawButton(4)){
         	if(!drive.turnToAngle){
         		drive.getGyro().reset();
-        		drive.setTurnToAngle(-180);
+        		drive.setTurnToAngle(60);
         	}
         	else {
-        		drive.drive(0, 0, drive.getTurnPower(), false);
+        		drive.mecanum(0, 0, drive.getTurnPower());
+        	}
+        }
+        if(leftStick.getRawButton(5)){
+        	if(!drive.turnToAngle){
+        		drive.getGyro().reset();
+        		drive.setTurnToAngle(-60);
+        	}
+        	else {
+        		System.out.println(drive.turnToAngleController.getError());
+        		drive.mecanum(0, 0, drive.getTurnPower());
         	}
         }
         if(rightStick.getRawButton(ButtonMap.STRAIGHT_DRIVE)){
@@ -278,7 +314,7 @@ public class Robot extends IterativeRobot {
         		drive.drive(leftStick.getY() * mult, leftStick.getX() * mult, drive.getTurnPower(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
         	}
         }
-        if(!rightStick.getRawButton(ButtonMap.RAPID_TURN) && !rightStick.getRawButton(ButtonMap.STRAIGHT_DRIVE))
+        if(!leftStick.getRawButton(5) && !leftStick.getRawButton(4) && !rightStick.getRawButton(ButtonMap.STRAIGHT_DRIVE))
         	drive.resetPIDs();
         
         if(rightStick.getRawButton(ButtonMap.GEAR_DRIVE) && gearDrive){
@@ -292,15 +328,31 @@ public class Robot extends IterativeRobot {
         	gearDriver.reset();
         }
         gearDrive = rightStick.getRawButton(ButtonMap.GEAR_DRIVE);
+        
+        if(rightStick.getRawButton(10)){
+        	if(!drive.encoderDrive){
+        		drive.resetEncoders();
+        		drive.startEncoderDrive(-104);
+        	}
+        	else {
+        		drive.mecanum(drive.encoderOutput, 0, 0);
+                SmartDashboard.putNumber("Encoder distance traveled", (drive.getRightDistance() - drive.getLeftDistance())/2);
+        	}
+        }
+        else {
+        	drive.encoderDrive = false;
+        	drive.encoderController.disable();
+        }
     }
     private void outputData(){
         navX.outputData();
         drive.outputPIDData();
         targetFinder.outputData();
+        SmartDashboard.putNumber("Angle Error", drive.turnToAngleController.getError());
         SmartDashboard.putNumber("Gear Drive Output", gearDriveOutput);
+        SmartDashboard.putNumber("NavX Angle:" , drive.getGyroAngle());
         SmartDashboard.putNumber("Gear Drive Speed", targetFinder.getDrivePower());
         //SmartDashboard.putNumber("NEW ANGLE", targetFinder.tt.c.getTargetAngle());
-        System.out.println("Distance Traveled: " + encoders.getDistance());
         SmartDashboard.putNumber("Config angle: ", CameraConfig.getYAngle(targetFinder.tt.c.rawVAngle, 6, 72));
     }
 }

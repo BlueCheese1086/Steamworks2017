@@ -9,7 +9,7 @@ import org.opencv.core.MatOfPoint;
 
 public abstract class CameraCalculator implements PIDSource, CVDataHandler {
     ArrayList<Sighting> visionObjects = new ArrayList<>();
-    public double distance, angle, rawVAngle;
+    public double distance, angle, rawVAngle, rawXAngle;
     public static double TARGET_HEIGHT;
     public CameraCalculator(double height){
         TARGET_HEIGHT = height;
@@ -39,7 +39,7 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
             double distanceToTarget = changeInY / Math.sin(verticalAngle);
             double horizontalDistance = distanceToTarget * Math.cos(verticalAngle);
             distance = horizontalDistance;
-          //  System.out.println("Distance: " + distance);
+            System.out.println("Distance: " + distance);
         }
     }
     public void calculateAngle(){
@@ -48,6 +48,7 @@ public abstract class CameraCalculator implements PIDSource, CVDataHandler {
         } else {
             double midX = visionObjects.stream().mapToDouble(p -> p.centerX / visionObjects.size()).sum();
             double horizontalAngle = Math.PI / 2 - getXAngle(midX);
+            rawXAngle = horizontalAngle;
             double f = Math.sqrt(
                             distance * distance + Math.pow(Constants.CAMERA_HORIZONTAL_OFFSET, 2)
                                             - 2 * distance * Constants.CAMERA_HORIZONTAL_OFFSET * Math.cos(horizontalAngle));

@@ -5,7 +5,10 @@ import com.ctre.CANTalon;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDSource;
+import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.usfirst.frc.team1086.robot.RobotMap;
 
@@ -14,12 +17,15 @@ public class Drivetrain {
     CANTalon leftFrontColson, rightFrontColson, leftRearColson, rightRearColson;
     Solenoid trigger;
     Gyro navX;
-    PIDController turnToAngleController;
+    public PIDController turnToAngleController;
     public PIDController driveStraightController;
+    public PIDController encoderController;
     double turnToAngleOutput;
     double driveStraightOutput;
+    public double encoderOutput;
     public boolean turnToAngle = false;
     public boolean driveStraight = false;
+    public boolean encoderDrive = false;
     public Drivetrain(){
         leftFrontMecanum = new CANTalon(RobotMap.LEFT_FRONT_MECANUM);
         leftRearMecanum = new CANTalon(RobotMap.LEFT_REAR_MECANUM);
@@ -36,8 +42,18 @@ public class Drivetrain {
         trigger = new Solenoid(RobotMap.TRIGGER);
         
         navX = new Gyro();
-        turnToAngleController = new PIDController(0.058, 0, 0.048, navX, v -> turnToAngleOutput = v);
-        driveStraightController = new PIDController(0.063, 0, 0, navX, v -> driveStraightOutput = v);
+        turnToAngleController = new PIDController(0.04, 0, 0.015, navX, v -> turnToAngleOutput = v);
+        driveStraightController = new PIDController(0.00, 0, 0, navX, v -> driveStraightOutput = v);
+        LiveWindow.addActuator("DriveSystem", "NavX Turn", driveStraightController);
+        encoderController = new PIDController(-0.11, 0, -0.08, new PIDSource(){
+            @Override public void setPIDSourceType(PIDSourceType pidSource){}
+            @Override public PIDSourceType getPIDSourceType(){
+                return PIDSourceType.kDisplacement;
+            }
+            @Override public double pidGet(){
+            	return getEncoderDistance();
+            }
+        }, d -> encoderOutput = d);
     }
     public void drive(double leftY, double leftX, double rightX, boolean trigger){
         this.trigger.set(trigger);
@@ -72,6 +88,18 @@ public class Drivetrain {
             driveStraight = true;
         }
     }
+    public void startEncoderDrive(int dis){
+    	encoderController.reset();
+    	resetEncoders();
+    	if(!encoderDrive){
+    		encoderController.setSetpoint(dis);
+    		encoderController.setAbsoluteTolerance(0.5);
+    		encoderController.setInputRange(-200, 200);
+    		encoderController.setOutputRange(-0.3, 0.3);
+    		encoderController.enable();
+    		encoderDrive = true;
+    	}
+    }
     public void resetPIDs(){
         turnToAngle = false;
         driveStraight = false;
@@ -80,14 +108,13 @@ public class Drivetrain {
     }
     public double getTurnPower(){
         if(turnToAngle)
-            return turnToAngleOutput;
+            return turnToAngleController.get();
         else if(driveStraight){
             return driveStraightOutput;
         }
         else
             return 0;
     }
-    
     public void mecanum(double leftY, double leftX, double rightX){
         leftFrontMecanum.set(0.9 * (leftY - rightX - leftX));
         leftFrontColson.set(0.9 * (leftY - rightX - leftX));
@@ -109,6 +136,19 @@ public class Drivetrain {
         rightRearMecanum.set(leftY + rightX);
         rightRearColson.set(leftY + rightX);
     } 
+    public void resetEncoders(){
+    	leftRearColson.setEncPosition(0);
+    	rightRearMecanum.setEncPosition(0);
+    }
+    public double getLeftDistance(){
+    	return leftRearColson.getEncPosition() / 1024.0 * Math.PI;
+    }
+    public double getRightDistance(){
+    	return rightRearMecanum.getEncPosition() / 1024.0 * Math.PI;
+    }    
+    public double getEncoderDistance(){
+        return (getRightDistance() - getLeftDistance()) / 2;
+    }
     public PIDController getActiveController(){
         if(turnToAngle)
             return turnToAngleController;
@@ -123,6 +163,12 @@ public class Drivetrain {
     public void outputPIDData(){
         SmartDashboard.putNumber("PID Turn Rate", getTurnPower());
         SmartDashboard.putNumber("Set Point", turnToAngleController.getSetpoint());
-        SmartDashboard.putNumber("Encoder distance", (leftRearColson.getEncPosition() + rightRearColson.getEncPosition()) / 2);
+        SmartDashboard.putNumber("Encoder Left", leftRearColson.getEncPosition());
+        SmartDashboard.putNumber("Encoder Right", rightRearMecanum.getEncPosition());
+        SmartDashboard.putNumber("Encoder Left Distance", getLeftDistance());
+        SmartDashboard.putNumber("Encoder Right Distance", getRightDistance());
+        SmartDashboard.putNumber("Encoder distance", (getRightDistance() - getLeftDistance())/2);
+        SmartDashboard.putNumber("Encoder Left V", leftRearColson.getEncVelocity());
+        SmartDashboard.putNumber("Encoder Right V", rightRearMecanum.getEncVelocity());
     }
 }
