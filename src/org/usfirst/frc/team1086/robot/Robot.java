@@ -113,7 +113,7 @@ public class Robot extends IterativeRobot {
         	return drive.encoderController.getError() < 2;
         });
         startActions.put("Set Target Turn To 60 Degrees", () -> {
-            drive.setTurnToAngle(drive.getGyro().getAngle() + 60);
+            drive.setTurnToAngle(drive.getGyro().getAngle() + 50);
         });
         startActions.put("Enable Drive PIDs", () -> {
     		drive.getGyro().reset();
@@ -122,7 +122,7 @@ public class Robot extends IterativeRobot {
         	drive.startEncoderDrive(-80);
         });
         startActions.put("Set Target Turn To 300 Degrees", () -> {
-            drive.setTurnToAngle(drive.getGyro().getAngle() - 60);
+            drive.setTurnToAngle(drive.getGyro().getAngle() - 50);
         });
         startActions.put("Enable Straight Drive", () -> {
     		drive.getGyro().reset();
@@ -178,7 +178,7 @@ public class Robot extends IterativeRobot {
             drive.drive(Math.signum(drivePower) * Math.sqrt(Math.abs(drivePower)), 0.0, gearDriveOutput, false);
             SmartDashboard.putNumber("Gear Drive Angle", gearDriver.getError());
             SmartDashboard.putNumber("Gear Drive Turn", gearDriveOutput);
-            return targetFinder.getDistance() < 45 && targetFinder.getDistance() != -1;
+            return targetFinder.getDistance() < 50 && targetFinder.getDistance() != -1;
         });
         chaseLogan = new AutonomousRoutine(){
         	@Override public void init(){
@@ -192,7 +192,7 @@ public class Robot extends IterativeRobot {
             @Override public void init(){
             	addSection(endActions.get("Drive to Sight"));
         		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
-                addSection(1200, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
+                addSection(1500, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
                 addSection(300, actions.get("Stop Fast"));
                 addSection(500, actions.get("Stop"));
                 addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
@@ -220,11 +220,11 @@ public class Robot extends IterativeRobot {
                 addSection(endActions.get("Reset PID"));
             	addSection(endActions.get("Drive to Sight"));
         		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
-                addSection(1200, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
+                addSection(1700, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
                 addSection(300, actions.get("Stop Fast"));
                 addSection(500, actions.get("Stop"));
-                addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
                 addSection(500, () ->  actions.get("Evict").run());
+                addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
                 addSection(40, actions.get("Hold"));
                 addSection(endActions.get("Reset PID"));
                 addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 300 Degrees"));
@@ -240,11 +240,11 @@ public class Robot extends IterativeRobot {
                 addSection(endActions.get("Reset PID"));
             	addSection(endActions.get("Drive to Sight"));
         		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
-                addSection(1200, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
+                addSection(1700, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
                 addSection(300, actions.get("Stop Fast"));
                 addSection(500, actions.get("Stop"));
-                addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
                 addSection(500, () ->  actions.get("Evict").run());
+                addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
                 addSection(40, actions.get("Hold"));
                 addSection(endActions.get("Reset PID"));
                 addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 60 Degrees"));
