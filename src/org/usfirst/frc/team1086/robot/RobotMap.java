@@ -19,7 +19,7 @@ public class RobotMap {
     public static final int SHOOTER2 = 18;
 
     public static final int TRIGGER = 1;
-    public static final int SPITTER = 2;
+    public static final int SPITTER = 0;
     
     public static final int LEFT_STICK = 0;
     public static final int RIGHT_STICK = 1;

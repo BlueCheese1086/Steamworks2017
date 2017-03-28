@@ -4,13 +4,13 @@ import java.util.HashMap;
 
 public class AutonomousCommander {
     HashMap<Integer, Double> sectionTimes = new HashMap();
-    HashMap<Integer, Runnable> sectionActions = new HashMap();
-    HashMap<Integer, Runnable> sectionStartActions = new HashMap();
+    HashMap<Integer, Section> sectionActions = new HashMap();
+    HashMap<Integer, Section> sectionStartActions = new HashMap();
     int section;
     double endTime;
     boolean started = false;
     public AutonomousCommander(){}
-    public void addSection(double time, Runnable ru){
+    public void addSection(double time, Section ru){
         addSection(time, ru, () -> {});
     }
     public void addSection(Action a){
@@ -19,15 +19,12 @@ public class AutonomousCommander {
                 next();
         }, () -> {});
     }
-    public void addSection(AutonomousRoutine ar){
-    	addSection(() -> { return !ar.started; }, () -> { ar.begin(); });
-    }
-    public void addSection(double time, Runnable ru, Runnable start){
+    public void addSection(double time, Section ru, Section start){
         sectionTimes.put(sectionTimes.size(), time);
         sectionActions.put(sectionActions.size(), ru);
         sectionStartActions.put(sectionStartActions.size(), start);
     }
-    public void addSection(Action a, Runnable ru){
+    public void addSection(Action a, Section ru){
         addSection(Double.POSITIVE_INFINITY, () -> {
             if(a.run())
                 next();

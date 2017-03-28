@@ -22,6 +22,8 @@ public class ImageProcessing {
     CameraServer cs = CameraServer.getInstance();
     CVDataHandler handler;
     Mat hsvThresholdOutput = new Mat();
+    int tick = 0;
+    boolean go = true;
     ArrayList<MatOfPoint> findContoursOutput = new ArrayList();
     ArrayList<MatOfPoint> filterContoursOutput = new ArrayList();
     static {
@@ -46,14 +48,18 @@ public class ImageProcessing {
 	                CvSink cvSink = CameraServer.getInstance().getVideo();
 	                Mat source = new Mat();
 	                Mat output = new Mat();
-	                while (!interrupted()) {
+	                while (!interrupted() && go) {
 	                	cvSink.grabFrame(source);
 	                	openCVProcess(source, output);
-		                sleep(1);
+		                sleep(40);
+		                Runtime.getRuntime().gc();
 	                }
                 } catch (Exception e){}
             }
         }.start();
+    }
+    public void stop(){
+    	go = false;
     }
     public void setCameraTarget(CVDataHandler handler){
         this.handler = handler;
