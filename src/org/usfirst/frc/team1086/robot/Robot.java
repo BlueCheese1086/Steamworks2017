@@ -17,9 +17,7 @@ import org.usfirst.frc.team1086.robot.camera.CameraTurning.TargetType;
 
 public class Robot extends IterativeRobot {
     Drivetrain drive;
-    Joystick leftStick;
-    Joystick rightStick;
-    Joystick auxiliaryStick;
+    InputManager im;
     GearHolder evictor;
     HashMap<String, Section> actions = new HashMap();
     HashMap<String, Section> startActions = new HashMap();
@@ -57,9 +55,7 @@ public class Robot extends IterativeRobot {
         drive = new Drivetrain();
         drive.resetEncoders();
         evictor = new GearHolder();
-        leftStick = new Joystick(RobotMap.LEFT_STICK);
-        rightStick = new Joystick(RobotMap.RIGHT_STICK);
-        auxiliaryStick = new Joystick(RobotMap.AUXILIARY_STICK);
+        im = new InputManager();
         targetFinder = new CameraTurning();
         flyWheel = new Shooter();
         intake = new Intake();
@@ -293,30 +289,41 @@ public class Robot extends IterativeRobot {
     }
     @Override public void teleopPeriodic(){
         outputData();
-        if(leftStick.getRawButton(ButtonMap.SAFETY_DRIVE)){
-        	drive.drive(leftStick.getY(), leftStick.getX(), rightStick.getX(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
-        }
-        else drive.drive(0, 0, 0, rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
-        if(auxiliaryStick.getRawButton(ButtonMap.COLLECT)){
+        
+        drive.drive(im.getDrive(), im.getStrafe(), im.getTurn(), im.getShift());
+        
+        if(im.getIntake())
             intake.motorIn();
-        }
-        else {
+        else 
             intake.motorOff();
-        }        
-        if(auxiliaryStick.getRawButton(ButtonMap.CLIMB)){
+        
+        if(im.getClimb())
             climber.climb();
-        }
-        else {
+        else 
             climber.stop();
-        }
-        if(auxiliaryStick.getRawButton(ButtonMap.EVICT)){
+        
+        if(im.getEvict())
             evictor.evict();
-        }
-        else { 
+        else 
             evictor.hold();
-        }
-        //Temp code
-        if(leftStick.getRawButton(4)){
+        
+        if(im.getShoot())
+        	flyWheel.shoot();
+        else 
+        	flyWheel.stop();
+        
+        if(im.getTestShoot())
+        	if(!flyWheel.isShooting){
+        		flyWheel.setRPM(-4000);
+        	}
+        	else {
+        		flyWheel.shoot();
+        		SmartDashboard.putNumber("PID Shoot", flyWheel.pidOutput);
+        	}
+        else 
+        	flyWheel.resetPID();
+        
+        if(im.getTurnLeft()){
         	if(!drive.turnToAngle){
         		drive.getGyro().reset();
         		drive.setTurnToAngle(60);
@@ -325,41 +332,40 @@ public class Robot extends IterativeRobot {
         		drive.mecanum(0, 0, drive.getTurnPower());
         	}
         }
-        if(leftStick.getRawButton(5)){
+        if(im.getTurnRight()){
         	if(!drive.turnToAngle){
         		drive.getGyro().reset();
         		drive.setTurnToAngle(-60);
         	}
         	else {
-        		System.out.println(drive.turnToAngleController.getError());
         		drive.mecanum(0, 0, drive.getTurnPower());
         	}
         }
-        if(rightStick.getRawButton(ButtonMap.STRAIGHT_DRIVE)){
+        if(im.getDriveStraight()){
         	if(!drive.driveStraight){
         		drive.getGyro().reset();
         		drive.startDriveStraight();
         	}
         	else {
-        		drive.drive(leftStick.getY(), leftStick.getX(), drive.getTurnPower(), rightStick.getRawButton(ButtonMap.OCTO_SHIFTER));
+        		drive.drive(im.getDrive(), im.getStrafe(), drive.getTurnPower(), im.getShift());
         	}
         }
-        if(!leftStick.getRawButton(5) && !leftStick.getRawButton(4) && !rightStick.getRawButton(ButtonMap.STRAIGHT_DRIVE))
+        if(!im.getTurnLeft() && !im.getTurnRight() && !im.getDriveStraight())
         	drive.resetPIDs();
         
-        if(rightStick.getRawButton(ButtonMap.GEAR_DRIVE) && gearDrive){
+        if(im.getGearDrive() && gearDrive){
 			if(targetFinder.getTargetType() != CameraTurning.TargetType.GEAR)
 				targetFinder.setTargetType(CameraTurning.TargetType.GEAR);
 			if(!gearDriver.isEnabled())
 				gearDriver.enable();
-			drive.mecanum(leftStick.getY(), 0, gearDriver.get());
+			drive.mecanum(im.getDrive(), 0, gearDriver.get());
 		}
-        if(rightStick.getRawButton(ButtonMap.GEAR_DRIVE) && !gearDrive){
+        if(im.getGearDrive() && !gearDrive){
         	gearDriver.reset();
         }
-        gearDrive = rightStick.getRawButton(ButtonMap.GEAR_DRIVE);
+        gearDrive = im.getGearDrive();
         
-        if(rightStick.getRawButton(10)){
+        if(im.getTestEncoderDrive()){
         	if(!drive.encoderDrive){
         		drive.resetEncoders();
         		drive.startEncoderDrive(-104);
@@ -376,8 +382,9 @@ public class Robot extends IterativeRobot {
     }
     private void outputData(){
         navX.outputData();
-        drive.outputPIDData();
+        //drive.outputPIDData();
         targetFinder.outputData();
+        flyWheel.outputData();
         SmartDashboard.putNumber("Angle Error", drive.turnToAngleController.getError());
         SmartDashboard.putNumber("Gear Drive Output", gearDriveOutput);
         SmartDashboard.putNumber("NavX Angle:" , drive.getGyroAngle());
