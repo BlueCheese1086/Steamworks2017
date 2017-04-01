@@ -17,7 +17,7 @@ import org.usfirst.frc.team1086.robot.RobotMap;
 
 public class Shooter implements PIDSource, PIDOutput {
     public CANTalon shooter1, shooter2;
-    PIDController controller = new PIDController(0.0005, 0.000015, 0.00035, 0.022, this, this);
+    PIDController controller = new PIDController(0.00055, 0.00002, 0.0007, 0.022, this, this);
     public boolean isShooting = false;
     public double pidOutput = 0;
     //Solenoid flap = new Solenoid(RobotMap.FLAP);

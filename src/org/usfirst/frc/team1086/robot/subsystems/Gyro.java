@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Gyro implements PIDSource {
-    private static AHRS navX;
+    public static AHRS navX;
     public Gyro(){
         if(navX == null){
             try {
@@ -21,7 +21,7 @@ public class Gyro implements PIDSource {
         return navX.getYaw();
     }    
     public void reset(){
-        navX.reset();
+        //navX.reset();
     }
     public double getNormalizedAngle(){
         return normalizeAngle(getAngle());

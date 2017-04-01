@@ -99,14 +99,22 @@ public class Robot extends IterativeRobot {
         actions.put("Drive Backwards", () -> drive.drive(-Math.sqrt(0.5), 0, 0, false));
         actions.put("Stop Fast", () -> drive.drive(-0.2, 0, 0, false));
         actions.put("Stop", () -> drive.drive(0, 0, 0, false));
-        actions.put("Evict", () -> { evictor.evict(); });
-        actions.put("Hold", () -> { evictor.hold(); });
+        actions.put("Evict", () -> evictor.evict());
+        actions.put("Hold", () -> evictor.hold());
+        actions.put("Shoot!", () -> flyWheel.shoot());
         actions.put("Drive Straight", () -> {
     		drive.drive(Math.sqrt(0.25), 0, drive.getTurnPower(), false);
         });
+        
         endActions.put("Drive Straight with Encoder", () -> {
-        	drive.mecanum(drive.encoderOutput, 0, drive.getTurnPower());
-        	return drive.encoderController.getError() < 2;
+        	System.out.println("Driving to boiler: " + drive.encoderController.getError());
+        	drive.mecanum(drive.encoderController.get(), 0, drive.getTurnPower());
+        	System.out.println("Encoder enabled: " + drive.encoderController.isEnabled());
+        	System.out.println("Encoder Output: " + drive.encoderController.get());
+        	return Math.abs(drive.encoderController.getError()) < 2;
+        });
+        startActions.put("Start Shooter", () -> {
+        	flyWheel.setRPM(-3500);
         });
         startActions.put("Set Target Turn To 60 Degrees", () -> {
             drive.setTurnToAngle(drive.getGyro().getAngle() + 50);
@@ -117,16 +125,33 @@ public class Robot extends IterativeRobot {
         	drive.resetEncoders();
         	drive.startEncoderDrive(-80);
         });
+        startActions.put("Enable Drive to Boiler", () -> {
+        	drive.startDriveStraight();
+        	drive.encoderDrive = false;
+        	drive.resetEncoders();
+        	drive.startEncoderDrive(41);
+        	System.out.println("Starting Enc Error: " + drive.encoderController.getError());
+        });
         startActions.put("Set Target Turn To 300 Degrees", () -> {
             drive.setTurnToAngle(drive.getGyro().getAngle() - 50);
         });
+        startActions.put("Set Turn to 135 Absolute", () -> {
+        	drive.setTurnToAngle(-43);
+        });
+        startActions.put("Set Turn to -135 Absolute", () -> {
+        	drive.setTurnToAngle(43);
+        });
         startActions.put("Enable Straight Drive", () -> {
-    		drive.getGyro().reset();
+        	System.out.println("Straight");
     		drive.startDriveStraight();
         });
         startActions.put("Set Drive Distance to 104", () -> {
         	drive.resetEncoders();
         	drive.startEncoderDrive(-27);
+        });
+        startActions.put("Set Drive Distance to 35", () -> {
+        	drive.resetEncoders();
+        	drive.startEncoderDrive(35);
         });
         startActions.put("Enable Gear Drive", () -> {
         	gearDriver.reset();
@@ -146,7 +171,7 @@ public class Robot extends IterativeRobot {
         endActions.put("Turn To Target Angle", () -> {
             drive.drive(0, 0, drive.getTurnPower(), false);
             System.out.println("Turnin'! " + drive.getActiveController().getError());
-            return drive.getActiveController().onTarget();
+            return drive.getActiveController().onTarget() && drive.getActiveController().getAvgError() < 2;
         });
         endActions.put("Drive to Sight", () -> {
         	targetFinder.setTargetType(TargetType.GEAR);
@@ -174,7 +199,7 @@ public class Robot extends IterativeRobot {
             drive.drive(Math.signum(drivePower) * Math.sqrt(Math.abs(drivePower)), 0.0, gearDriveOutput, false);
             SmartDashboard.putNumber("Gear Drive Angle", gearDriver.getError());
             SmartDashboard.putNumber("Gear Drive Turn", gearDriveOutput);
-            return targetFinder.getDistance() < 50 && targetFinder.getDistance() != -1;
+            return targetFinder.getDistance() < 45 && targetFinder.getDistance() != -1;
         });
         chaseLogan = new AutonomousRoutine(){
         	@Override public void init(){
@@ -218,14 +243,17 @@ public class Robot extends IterativeRobot {
         		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
                 addSection(1700, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
                 addSection(300, actions.get("Stop Fast"));
-                addSection(500, actions.get("Stop"));
-                addSection(500, () ->  actions.get("Evict").run());
-                addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
+                addSection(500, actions.get("Stop"));               
+                addSection(250, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
+                //addSection(500, () ->  actions.get("Evict").run());
                 addSection(40, actions.get("Hold"));
                 addSection(endActions.get("Reset PID"));
-                addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Target Turn To 300 Degrees"));
-                addSection(10000, actions.get("Drive Forward Slowly"));
-                addSection(310000, actions.get("Stop"));
+                addSection(500, actions.get("Drive Backwards"));
+                addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Turn to -135 Absolute"));
+                addSection(endActions.get("Reset PID"), startActions.get("Start Shooter"));
+                addSection(() -> { actions.get("Shoot!").run(); return endActions.get("Drive Straight with Encoder").run(); }, startActions.get("Enable Drive to Boiler"));
+                addSection(40, actions.get("Stop"));
+                addSection(100000, actions.get("Shoot!"), startActions.get("Start Shooter"));
             }
         };
         rightGear = new AutonomousRoutine(){
@@ -269,6 +297,7 @@ public class Robot extends IterativeRobot {
     		System.out.println(Constants.CAMERA_HORIZONTAL_ANGLE * 180.0 / Math.PI);
     		System.out.println(Constants.CAMERA_VERTICAL_ANGLE * 180.0 / Math.PI);
     	}
+    	drive.getGyro().navX.reset();
     	selected = autoRoutines.get(chooser.getSelected());
     	selected.begin();
     }
@@ -281,7 +310,7 @@ public class Robot extends IterativeRobot {
     @Override public void teleopInit(){
     	drive.setTurnToAngle(60);
     	autoRoutines.get(chooser.getSelected()).stop();
-    	imageProcessing.stop();
+    	//imageProcessing.stop();
     	drive.resetEncoders();
     }
     @Override public void testPeriodic(){
@@ -314,7 +343,15 @@ public class Robot extends IterativeRobot {
         
         if(im.getTestShoot())
         	if(!flyWheel.isShooting){
-        		flyWheel.setRPM(-4000);
+        		flyWheel.setRPM(-3500);
+        	}
+        	else {
+        		flyWheel.shoot();
+        		SmartDashboard.putNumber("PID Shoot", flyWheel.pidOutput);
+        	}
+        else if(im.getDriverControlShooter())
+        	if(!flyWheel.isShooting){
+        		flyWheel.setRPM(-(int)(6500.0 * (1 + im.auxStick.getZ()) / 2));
         	}
         	else {
         		flyWheel.shoot();
@@ -325,8 +362,7 @@ public class Robot extends IterativeRobot {
         
         if(im.getTurnLeft()){
         	if(!drive.turnToAngle){
-        		drive.getGyro().reset();
-        		drive.setTurnToAngle(60);
+        		drive.setTurnToAngle(drive.getGyroAngle() + 60);
         	}
         	else {
         		drive.mecanum(0, 0, drive.getTurnPower());
@@ -334,8 +370,7 @@ public class Robot extends IterativeRobot {
         }
         if(im.getTurnRight()){
         	if(!drive.turnToAngle){
-        		drive.getGyro().reset();
-        		drive.setTurnToAngle(-60);
+        		drive.setTurnToAngle(drive.getGyroAngle() - 60);
         	}
         	else {
         		drive.mecanum(0, 0, drive.getTurnPower());
@@ -379,10 +414,14 @@ public class Robot extends IterativeRobot {
         	drive.encoderDrive = false;
         	drive.encoderController.disable();
         }
+        
+        if(im.auxStick.getRawButton(7))
+        	agitator.agitate();
+        else agitator.stop();
     }
     private void outputData(){
         navX.outputData();
-        //drive.outputPIDData();
+        drive.outputPIDData();
         targetFinder.outputData();
         flyWheel.outputData();
         SmartDashboard.putNumber("Angle Error", drive.turnToAngleController.getError());

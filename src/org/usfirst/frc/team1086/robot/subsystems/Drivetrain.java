@@ -42,7 +42,7 @@ public class Drivetrain {
         trigger = new Solenoid(RobotMap.TRIGGER);
         
         navX = new Gyro();
-        turnToAngleController = new PIDController(0.045, 0.001, 0.015, navX, v -> turnToAngleOutput = v);
+        turnToAngleController = new PIDController(0.05, 0.00001, 0.05, navX, v -> turnToAngleOutput = v);
         driveStraightController = new PIDController(0.02, 0, 0, navX, v -> driveStraightOutput = v);
         LiveWindow.addActuator("DriveSystem", "NavX Turn", turnToAngleController);
         encoderController = new PIDController(-0.11, 0, -0.08, new PIDSource(){
@@ -69,7 +69,7 @@ public class Drivetrain {
     public void setTurnToAngle(double angle){
         if(!turnToAngle){
             turnToAngleController.setSetpoint(angle);
-            turnToAngleController.setAbsoluteTolerance(4.0);
+            turnToAngleController.setAbsoluteTolerance(2.0);
             turnToAngleController.setContinuous(true);
             turnToAngleController.setInputRange(-180, 180);
             turnToAngleController.setOutputRange(-0.6, 0.6);
@@ -79,7 +79,8 @@ public class Drivetrain {
     }
     public void startDriveStraight(){
         if(!driveStraight){
-            driveStraightController.setSetpoint(0);
+        	System.out.println("Starting Drive Straight");
+            driveStraightController.setSetpoint(getGyro().getAngle());
             driveStraightController.setAbsoluteTolerance(0.5);
             driveStraightController.setContinuous(true);
             driveStraightController.setInputRange(-180, 180);
@@ -92,6 +93,7 @@ public class Drivetrain {
     	encoderController.reset();
     	resetEncoders();
     	if(!encoderDrive){
+    		System.out.println("Starting Encoder Drive");
     		encoderController.setSetpoint(dis);
     		encoderController.setAbsoluteTolerance(0.5);
     		encoderController.setInputRange(-200, 200);
@@ -137,6 +139,7 @@ public class Drivetrain {
         rightRearColson.set(leftY + rightX);
     } 
     public void resetEncoders(){
+    	encoderDrive = false;
     	leftRearColson.setEncPosition(0);
     	rightRearMecanum.setEncPosition(0);
     }

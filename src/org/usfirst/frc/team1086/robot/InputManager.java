@@ -37,7 +37,7 @@ public class InputManager {
 		return leftStick.getRawButton(ButtonMap.TURN_RIGHT);
 	}
 	public boolean getTurnLeft(){
-		return auxStick.getRawButton(ButtonMap.TURN_LEFT);
+		return leftStick.getRawButton(ButtonMap.TURN_LEFT);
 	}
 	public boolean getDriveStraight(){
 		return rightStick.getRawButton(ButtonMap.STRAIGHT_DRIVE);
@@ -46,6 +46,9 @@ public class InputManager {
 		return rightStick.getRawButton(ButtonMap.GEAR_DRIVE);
 	}
 	public boolean getTestEncoderDrive(){
-		return rightStick.getRawButton(ButtonMap.GEAR_DRIVE);
+		return rightStick.getRawButton(ButtonMap.TEST_ENCODER_DRIVE);
+	}
+	public boolean getDriverControlShooter(){
+		return auxStick.getRawButton(8);
 	}
 }

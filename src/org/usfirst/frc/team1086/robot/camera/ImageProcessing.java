@@ -34,8 +34,9 @@ public class ImageProcessing {
     public void start(){
         new Thread(){
         	@Override public void run(){
-                AxisCamera camera = CameraServer.getInstance().addAxisCamera("10.10.86.22");
-                camera.setResolution(320, 240);
+                AxisCamera camera1 = CameraServer.getInstance().addAxisCamera("10.10.86.22");
+                AxisCamera camera2 = CameraServer.getInstance().addAxisCamera("10.10.86.23");
+                camera1.setResolution(320, 240);
                 try {
 	                /*while(!camera.isConnected()){
 	                	System.out.println("Camera not connected yet... retrying in 1 second");
@@ -44,8 +45,10 @@ public class ImageProcessing {
 	                	System.out.println(camera.isConnected());
 	                }
 	                System.out.println("Stacey, the camera is connected now. You can restart.");*/
-	                CameraServer.getInstance().startAutomaticCapture(camera);
+	                CameraServer.getInstance().startAutomaticCapture(camera1);
+	                CameraServer.getInstance().startAutomaticCapture(camera2);
 	                CvSink cvSink = CameraServer.getInstance().getVideo();
+	                cvSink.setSource(camera1);
 	                Mat source = new Mat();
 	                Mat output = new Mat();
 	                while (!interrupted() && go) {
