@@ -2,7 +2,7 @@ package org.usfirst.frc.team1086.robot;
 public class RobotMap {
     public static final int LEFT_FRONT_MECANUM = 1;
     public static final int LEFT_FRONT_COLSON = 2;
-    public static final int LEFT_REAR_MECANUM = 3;
+    public static final int LEFT_REAR_MECANUM = 21;
     public static final int LEFT_REAR_COLSON = 4;
     public static final int RIGHT_FRONT_MECANUM = 5;
     public static final int RIGHT_FRONT_COLSON = 6;
@@ -14,7 +14,7 @@ public class RobotMap {
     public static final int CLIMB1 = 11; 
     public static final int CLIMB2 = 12; 
     public static final int AGITATOR = 13;
-    public static final int HOOD = 14;
+    public static final int HOOD = 3;
     public static final int SHOOTER1 = 10;
     public static final int SHOOTER2 = 18;
 

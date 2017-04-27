@@ -28,7 +28,7 @@ public class Shooter implements PIDSource, PIDOutput {
         LiveWindow.addActuator("Shooter", "Shooter", controller);
     }
     public double getRPM(){
-    	return shooter2.getEncVelocity() * 3.0 / 1024 * 60;
+    	return -shooter2.getEncVelocity() * 3.0 / 1024 * 60;
     }
     public void setRPM(int targetRPM){
         controller.setSetpoint(targetRPM);
@@ -60,14 +60,15 @@ public class Shooter implements PIDSource, PIDOutput {
     @Override public void setPIDSourceType(PIDSourceType pidSource){
     }
     @Override public PIDSourceType getPIDSourceType(){
-        return PIDSourceType.kDisplacement;
+     
+    	return PIDSourceType.kDisplacement;
     }
     @Override public double pidGet(){
         return getRPM();
     }
     @Override public void pidWrite(double output){
-    	System.out.println("Output: " + output);
-    	System.out.println("Error: "+controller.getError());
+    	//System.out.println("Output: " + output);
+    	//System.out.println("Error: "+controller.getError());
     	pidOutput = output;
     }
 }

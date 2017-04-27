@@ -42,10 +42,10 @@ public class Drivetrain {
         trigger = new Solenoid(RobotMap.TRIGGER);
         
         navX = new Gyro();
-        turnToAngleController = new PIDController(0.05, 0.00001, 0.05, navX, v -> turnToAngleOutput = v);
-        driveStraightController = new PIDController(0.02, 0, 0, navX, v -> driveStraightOutput = v);
+        turnToAngleController = new PIDController(0.08, 0.0001, 0.085, navX, v -> turnToAngleOutput = v);
+        driveStraightController = new PIDController(0.09, 0, 0.105, navX, v -> driveStraightOutput = v);
         LiveWindow.addActuator("DriveSystem", "NavX Turn", turnToAngleController);
-        encoderController = new PIDController(-0.11, 0, -0.08, new PIDSource(){
+        encoderController = new PIDController(-0.11, 0, -0.1, new PIDSource(){
             @Override public void setPIDSourceType(PIDSourceType pidSource){}
             @Override public PIDSourceType getPIDSourceType(){
                 return PIDSourceType.kDisplacement;
@@ -97,7 +97,7 @@ public class Drivetrain {
     		encoderController.setSetpoint(dis);
     		encoderController.setAbsoluteTolerance(0.5);
     		encoderController.setInputRange(-200, 200);
-    		encoderController.setOutputRange(-0.3, 0.3);
+    		encoderController.setOutputRange(-0.45, 0.45);
     		encoderController.enable();
     		encoderDrive = true;
     	}

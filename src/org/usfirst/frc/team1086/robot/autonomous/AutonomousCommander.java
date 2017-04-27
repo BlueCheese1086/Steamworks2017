@@ -19,6 +19,18 @@ public class AutonomousCommander {
                 next();
         }, () -> {});
     }
+    public void addSection(int time, Action a){
+        addSection(time, () -> {
+            if(a.run())
+                next();
+        }, () -> {});
+    }
+    public void addSection(int time, Action a, Section s){
+        addSection(time, () -> {
+            if(a.run())
+                next();
+        }, s);
+    }
     public void addSection(double time, Section ru, Section start){
         sectionTimes.put(sectionTimes.size(), time);
         sectionActions.put(sectionActions.size(), ru);

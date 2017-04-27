@@ -14,7 +14,7 @@ public class CameraTurning implements CVDataHandler {
     PIDController turnController;
     PIDController driveController;
     PIDController strafeController;
-    public TargetType tt = TargetType.BOILER;
+    public CameraCalculator calculator;
     static double kPturn = -0.015;
     static double kIturn = -0.00001;
     static double kDturn = -0.017;
@@ -26,109 +26,42 @@ public class CameraTurning implements CVDataHandler {
     double pidTurn;
     double pidDrive;
     public double getDistance(){
-    	return tt.c.distance;
+    	return calculator.distance;
     }
     public double getAngle(){
-    	return tt.c.angle;
+    	return calculator.angle;
     }
     public CameraTurning(){
-        setTargetType(TargetType.BOILER);
-        strafeController = new PIDController(0, 0, 0, new PIDSource(){
-            @Override public void setPIDSourceType(PIDSourceType pidSource){}
-            @Override public PIDSourceType getPIDSourceType(){
-                return PIDSourceType.kDisplacement;
-            }
-            @Override public double pidGet(){
-            	return 0;
-               // return TargetType.GEAR.c.getTargetAngle();
-            }
-        }, d -> {});
-        strafeController.setInputRange(-45, 45);
-        strafeController.setOutputRange(-0.5, 0.5);
-        strafeController.setSetpoint(0);
-        strafeController.setContinuous(false);
-        strafeController.setAbsoluteTolerance(5);
-        strafeController.enable();
+    	calculator = new GearGoalFinder();
+    	this.driveController = new PIDController(kPdrive, kIdrive, kDdrive, new PIDSource(){
+	        @Override public void setPIDSourceType(PIDSourceType pidSource){}
+	        @Override public PIDSourceType getPIDSourceType(){
+	            return PIDSourceType.kDisplacement;
+	        }
+	        @Override public double pidGet(){
+	            return calculator.distance / 12;
+	        }
+	    }, d -> {});
+	    driveController.setInputRange(0, 20);
+	    driveController.setOutputRange(-0.3, 0.3);
+	    driveController.setAbsoluteTolerance(kToleranceDistance);
+	    driveController.setSetpoint(0.25);
+	    driveController.setContinuous(false);
+	    driveController.enable();
     }
     public void reset(){
     	driveController.reset();
-    	turnController.reset();
-    }
-    public final void setTargetType(TargetType tt){
-        this.tt = tt;
-        driveController = tt.driveController;
-        turnController = tt.turnController;
-        LiveWindow.addActuator("DriveSystem", "Gear Drive", driveController);
-    }
-    public TargetType getTargetType(){
-        return tt;
-    }
-    public double turnToAngle(){
-    	turnController.enable();
-    	if(turnController.getAvgError() > 30){
-    		turnController.reset();
-    		if(turnController.getError() > 40)
-    			return 0.3;
-    		else return 0.3 * (turnController.getError() / 33);
-    	}
-        return turnController.get();
     }
     public double getDrivePower(){
     	driveController.enable();
         return driveController.get();
     }
-    public double getStrafePower(){
-        if(tt == TargetType.GEAR)
-            return strafeController.get();
-        else return 0;
-    }
-    public static enum TargetType implements PIDSource {
-        BOILER(new HighGoalFinder()),
-        GEAR(new GearGoalFinder());
-        public CameraCalculator c;
-        PIDController driveController, turnController;
-        TargetType(CameraCalculator c){
-            this.c = c;
-            this.driveController = new PIDController(kPdrive, kIdrive, kDdrive, new PIDSource(){
-                @Override public void setPIDSourceType(PIDSourceType pidSource){}
-                @Override public PIDSourceType getPIDSourceType(){
-                    return PIDSourceType.kDisplacement;
-                }
-                @Override public double pidGet(){
-                    return c.distance / 12;
-                }
-            }, d -> {});
-            driveController.setInputRange(0, 20);
-            driveController.setOutputRange(-0.3, 0.3);
-            driveController.setAbsoluteTolerance(kToleranceDistance);
-            driveController.setSetpoint(0.25);
-            driveController.setContinuous(false);
-            driveController.enable();
-            this.turnController = new PIDController(kPturn, kIturn, kDturn, c, d -> {});
-            turnController.setInputRange(-33, 33);
-            turnController.setOutputRange(-0.5, 0.5);
-            turnController.setSetpoint(0);
-            turnController.setAbsoluteTolerance(kToleranceDegrees);
-            turnController.setContinuous(false);
-            turnController.enable();
-        }
-        @Override public void setPIDSourceType(PIDSourceType pidSource) {
-
-        }
-        @Override public PIDSourceType getPIDSourceType() {
-            return PIDSourceType.kDisplacement;
-        }
-        @Override public double pidGet() {
-            return c.angle;
-        }
-    }
     @Override public void handle(ArrayList<MatOfPoint> m){
-        tt.c.handle(m);
+        calculator.handle(m);
     }
     public void outputData(){
-        SmartDashboard.putString("Current Target Type", tt == TargetType.BOILER ? "Boiler" : "Gear");
-        SmartDashboard.putNumber("Distance to Target", tt.c.distance);
-        SmartDashboard.putNumber("Angle to Target", tt.c.angle);
+        SmartDashboard.putNumber("Distance to Target", calculator.distance);
+        SmartDashboard.putNumber("Angle to Target", calculator.angle);
         SmartDashboard.putNumber("PID Target Turn Rate", pidTurn);
         SmartDashboard.putNumber("PID Target Drive Rate", pidDrive);
     }

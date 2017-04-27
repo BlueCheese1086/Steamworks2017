@@ -70,7 +70,7 @@ public class ImageProcessing {
     public void openCVProcess(Mat source, Mat output){
         //HSV
         Mat hsvThresholdInput = source;
-        double[] hsvThresholdHue = {49, 88};
+        double[] hsvThresholdHue = {49, 95};
         double[] hsvThresholdSaturation = {231, 255};
         double[] hsvThresholdValue = {30, 248};
         hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, output);
