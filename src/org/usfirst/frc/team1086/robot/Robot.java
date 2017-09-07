@@ -31,7 +31,9 @@ public class Robot extends IterativeRobot {
     AutonomousRoutine centerShootRight, centerShootLeft;
     AutonomousRoutine selected;
     CameraTurning targetFinder;
-    Shooter flyWheel;
+    //Shooter flyWheel;
+    //ShooterTest flyWheel;
+    ShooterTBH tbhShooter;
     Ultrasonic ultra;
     ImageProcessing imageProcessing;
     Intake intake;
@@ -57,7 +59,10 @@ public class Robot extends IterativeRobot {
         im = new InputManager();
         targetFinder = new CameraTurning();
         ultra = new Ultrasonic(0);
-        flyWheel = new Shooter();
+        //flyWheel = new Shooter();
+        //flyWheel = new Shooter();
+        tbhShooter = new ShooterTBH();
+        //flyWheel = new ShooterTest();
         intake = new Intake();
         t = new Timer();
         climber = new Climber();
@@ -76,6 +81,7 @@ public class Robot extends IterativeRobot {
 		gearDriver.setAbsoluteTolerance(.1);
 		gearDriver.setContinuous(true);
 		gearDriver.enable();
+		gearDriver.setSetpoint(0);
 		ultraDriver = new PIDController(-0.11, 0, -0.1, 0, ultra, v -> {});
 		ultraDriver.setInputRange(0, 240);
 		ultraDriver.setOutputRange(-0.45, 0.45);
@@ -106,7 +112,7 @@ public class Robot extends IterativeRobot {
         actions.put("Stop", () -> drive.drive(0, 0, 0, false));
         actions.put("Evict", () -> evictor.evict());
         actions.put("Hold", () -> evictor.hold());
-        actions.put("Shoot!", () -> flyWheel.shoot());
+        //actions.put("Shoot!", () -> flyWheel.shoot());
         actions.put("Run Agitator", () -> agitator.agitate());
         actions.put("Stop Agitator", () -> agitator.stop());
         actions.put("Drive Straight", () -> {
@@ -120,7 +126,7 @@ public class Robot extends IterativeRobot {
         	return Math.abs(drive.encoderController.getError()) < 2.5;
         });
         startActions.put("Start Shooter", () -> {
-        	flyWheel.setRPM(-3500);
+        	//flyWheel.setRPM(-3500);
         });
         startActions.put("Set Target Turn To 60 Degrees", () -> {
             drive.setTurnToAngle(drive.getGyro().getAngle() + 50);
@@ -170,6 +176,10 @@ public class Robot extends IterativeRobot {
         	drive.resetEncoders();
         	drive.startEncoderDrive(35);
         });
+        startActions.put("Set Drive Distance to 144", () -> {
+        	drive.resetEncoders();
+        	drive.startEncoderDrive(72);
+        });
         startActions.put("Enable Gear Drive", () -> {
         	gearDriver.reset();
         	gearDriver.setSetpoint(0);
@@ -218,6 +228,7 @@ public class Robot extends IterativeRobot {
                 addSection(500, actions.get("Stop"));
         	}
         };
+        
         easyGear = new AutonomousRoutine(){
             @Override public void init(){
             	addSection(endActions.get("Drive to Sight"));
@@ -231,6 +242,21 @@ public class Robot extends IterativeRobot {
                 addSection(310000, actions.get("Stop"));
             }
         };
+        /*
+        easyGear = new AutonomousRoutine(){
+            @Override public void init(){
+            	addSection(endActions.get("Drive to Sight"));
+        		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
+                //addSection(1500, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
+        		addSection(endActions.get("Drive to Wall"), startActions.get("Start Drive to Wall"));
+                addSection(300, actions.get("Stop Fast"));
+                addSection(500, actions.get("Stop"));
+                addSection(500, () ->  actions.get("Evict").run());
+                addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
+                addSection(40, actions.get("Hold"));
+                addSection(310000, actions.get("Stop"));
+            }
+        };*/
         noCamAuto = new AutonomousRoutine(){
         	@Override public void init(){
         		addSection(endActions.get("Drive Straight with Encoder"), startActions.get("Enable Drive PIDs"));
@@ -254,11 +280,32 @@ public class Robot extends IterativeRobot {
                 addSection(40, actions.get("Hold"));
                 addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Turn to -90 Absolute"));
                 addSection(endActions.get("Reset PID"));
-                addSection(1500, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
-                addSection(endActions.get("Reset PID"));
-                addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Turn to -135 Absolute"));
+                addSection(endActions.get("Drive to Distance"), startActions.get("Set Drive Distance to 144"));
                 addSection(endActions.get("Reset PID"), startActions.get("Start Shooter"));
-                addSection(300, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
+                addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Turn to -135 Absolute"));
+                addSection(endActions.get("Reset PID"));
+                addSection(300, actions.get("Drive Backwards"), startActions.get("Enable Straight Drive"));
+                addSection(40, actions.get("Stop"));
+                addSection(100000, () -> { actions.get("Shoot!").run(); actions.get("Run Agitator").run(); }, startActions.get("Start Shooter"));
+        	}
+        };
+        centerShootRight = new AutonomousRoutine(){
+        	@Override public void init(){
+        		addSection(endActions.get("Drive to Sight"));
+        		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
+                addSection(1500, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
+                addSection(300, actions.get("Stop Fast"));
+                addSection(500, actions.get("Stop"));
+                addSection(500, () ->  actions.get("Evict").run());
+                addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
+                addSection(40, actions.get("Hold"));
+                addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Turn to 90 Absolute"));
+                addSection(endActions.get("Reset PID"));
+                addSection(endActions.get("Drive to Distance"), startActions.get("Set Drive Distance to 144"));
+                addSection(endActions.get("Reset PID"), startActions.get("Start Shooter"));
+                addSection(endActions.get("Turn To Target Angle"), startActions.get("Set Turn to 135 Absolute"));
+                addSection(endActions.get("Reset PID"));
+                addSection(300, actions.get("Drive Backwards"), startActions.get("Enable Straight Drive"));
                 addSection(40, actions.get("Stop"));
                 addSection(100000, () -> { actions.get("Shoot!").run(); actions.get("Run Agitator").run(); }, startActions.get("Start Shooter"));
         	}
@@ -271,7 +318,7 @@ public class Robot extends IterativeRobot {
                 addSection(endActions.get("Reset PID"));
             	addSection(endActions.get("Drive to Sight"));
         		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
-                addSection(1700, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
+                addSection(1900, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
                 addSection(300, actions.get("Stop Fast"));
                 addSection(200, actions.get("Stop"));
                 addSection(250, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
@@ -293,7 +340,7 @@ public class Robot extends IterativeRobot {
                 addSection(endActions.get("Reset PID"));
             	addSection(endActions.get("Drive to Sight"));
         		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
-                addSection(1700, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
+                addSection(1900, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
                 addSection(300, actions.get("Stop Fast"));
                 addSection(200, actions.get("Stop"));               
                 addSection(250, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
@@ -315,7 +362,7 @@ public class Robot extends IterativeRobot {
                 addSection(endActions.get("Reset PID"));
             	addSection(endActions.get("Drive to Sight"));
         		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
-                addSection(1700, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
+                addSection(1900, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
                 addSection(300, actions.get("Stop Fast"));
                 addSection(500, actions.get("Stop"));
                 addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
@@ -334,7 +381,7 @@ public class Robot extends IterativeRobot {
                 addSection(endActions.get("Reset PID"));
             	addSection(endActions.get("Drive to Sight"));
         		addSection(endActions.get("Chase Logan"), startActions.get("Enable Gear Drive"));
-                addSection(1700, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
+                addSection(1900, actions.get("Drive Straight"), startActions.get("Enable Straight Drive"));
                 addSection(300, actions.get("Stop Fast"));
                 addSection(500, actions.get("Stop"));
                 addSection(500, () -> { actions.get("Drive Backwards").run(); actions.get("Evict").run(); });
@@ -359,7 +406,7 @@ public class Robot extends IterativeRobot {
         };
     }
 	@Override public void autonomousInit(){
-    	if(chooser.getSelected() == easyGear){
+    	if(chooser.getSelected() == easyGear || chooser.getSelected() == centerShootLeft || chooser.getSelected() == centerShootRight){
     		System.out.println("-------------------Configuring!---------------------------");
     		double dis = 80;//ultra.<get distance>
     		Constants.CAMERA_HORIZONTAL_ANGLE = CameraConfig.getXAngle(targetFinder.calculator.rawXAngle, dis, Constants.CAMERA_HORIZONTAL_OFFSET);
@@ -404,6 +451,7 @@ public class Robot extends IterativeRobot {
         else 
             evictor.hold();
         
+        /*
         if(im.getShoot())
         	flyWheel.shoot();
         else 
@@ -426,7 +474,25 @@ public class Robot extends IterativeRobot {
         		SmartDashboard.putNumber("PID Shoot", flyWheel.pidOutput);
         	}
         else 
-        	flyWheel.resetPID();
+        	flyWheel.resetPID(); 
+        */
+        
+        /*
+        if(im.getTestTestShoot())
+        	flyWheel.shoot();
+        else flyWheel.stop(); */
+        
+        
+        if(im.getTestTestShoot()){      	
+        	if(!tbhShooter.isShooting){
+        		tbhShooter.setRPM(-4000);
+        		tbhShooter.isShooting = true;
+        	}
+        	else
+        		tbhShooter.shoot();
+        }
+        else
+        	tbhShooter.stop(); 
         
         if(im.getTurnLeft()){
         	if(!drive.turnToAngle){
@@ -489,7 +555,8 @@ public class Robot extends IterativeRobot {
         navX.outputData();
         drive.outputPIDData();
         targetFinder.outputData();
-        flyWheel.outputData();
+        //flyWheel.outputData();
+        tbhShooter.outputData();
         SmartDashboard.putNumber("Ultrasonic Sensor", ultra.get());
         SmartDashboard.putNumber("Angle Error", drive.turnToAngleController.getError());
         SmartDashboard.putNumber("Gear Drive Output", gearDriveOutput);

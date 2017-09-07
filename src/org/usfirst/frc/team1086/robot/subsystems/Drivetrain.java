@@ -42,7 +42,7 @@ public class Drivetrain {
         trigger = new Solenoid(RobotMap.TRIGGER);
         
         navX = new Gyro();
-        turnToAngleController = new PIDController(0.08, 0.0001, 0.085, navX, v -> turnToAngleOutput = v);
+        turnToAngleController = new PIDController(0.085, 0.0001, 0.085, navX, v -> turnToAngleOutput = v);
         driveStraightController = new PIDController(0.09, 0, 0.105, navX, v -> driveStraightOutput = v);
         LiveWindow.addActuator("DriveSystem", "NavX Turn", turnToAngleController);
         encoderController = new PIDController(-0.11, 0, -0.1, new PIDSource(){

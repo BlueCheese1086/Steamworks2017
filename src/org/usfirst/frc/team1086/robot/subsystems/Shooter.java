@@ -59,8 +59,7 @@ public class Shooter implements PIDSource, PIDOutput {
     }
     @Override public void setPIDSourceType(PIDSourceType pidSource){
     }
-    @Override public PIDSourceType getPIDSourceType(){
-     
+    @Override public PIDSourceType getPIDSourceType(){    
     	return PIDSourceType.kDisplacement;
     }
     @Override public double pidGet(){

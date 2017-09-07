@@ -19,4 +19,5 @@ public class ButtonMap {
     public static final int CLIMB = 3;
     public static final int SHOOT = 4;
     public static final int TEST_SHOOT = 10;
+    public static final int TEST_TEST_SHOOT = 11;
 }

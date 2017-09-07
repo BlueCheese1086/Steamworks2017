@@ -33,6 +33,9 @@ public class InputManager {
 	public boolean getTestShoot(){
 		return auxStick.getRawButton(ButtonMap.TEST_SHOOT);
 	}
+	public boolean getTestTestShoot(){
+		return auxStick.getRawButton(ButtonMap.TEST_TEST_SHOOT);
+	}
 	public boolean getTurnRight(){
 		return leftStick.getRawButton(ButtonMap.TURN_RIGHT);
 	}
