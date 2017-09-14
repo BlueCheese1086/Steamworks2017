@@ -31,9 +31,7 @@ public class Robot extends IterativeRobot {
     AutonomousRoutine centerShootRight, centerShootLeft;
     AutonomousRoutine selected;
     CameraTurning targetFinder;
-    //Shooter flyWheel;
-    //ShooterTest flyWheel;
-    ShooterTBH tbhShooter;
+    Shooter flyWheel;
     Ultrasonic ultra;
     ImageProcessing imageProcessing;
     Intake intake;
@@ -59,10 +57,7 @@ public class Robot extends IterativeRobot {
         im = new InputManager();
         targetFinder = new CameraTurning();
         ultra = new Ultrasonic(0);
-        //flyWheel = new Shooter();
-        //flyWheel = new Shooter();
-        tbhShooter = new ShooterTBH();
-        //flyWheel = new ShooterTest();
+        flyWheel = new Shooter();
         intake = new Intake();
         t = new Timer();
         climber = new Climber();
@@ -451,7 +446,7 @@ public class Robot extends IterativeRobot {
         else 
             evictor.hold();
         
-        /*
+        
         if(im.getShoot())
         	flyWheel.shoot();
         else 
@@ -475,24 +470,7 @@ public class Robot extends IterativeRobot {
         	}
         else 
         	flyWheel.resetPID(); 
-        */
         
-        /*
-        if(im.getTestTestShoot())
-        	flyWheel.shoot();
-        else flyWheel.stop(); */
-        
-        
-        if(im.getTestTestShoot()){      	
-        	if(!tbhShooter.isShooting){
-        		tbhShooter.setRPM(-4000);
-        		tbhShooter.isShooting = true;
-        	}
-        	else
-        		tbhShooter.shoot();
-        }
-        else
-        	tbhShooter.stop(); 
         
         if(im.getTurnLeft()){
         	if(!drive.turnToAngle){
@@ -555,8 +533,7 @@ public class Robot extends IterativeRobot {
         navX.outputData();
         drive.outputPIDData();
         targetFinder.outputData();
-        //flyWheel.outputData();
-        tbhShooter.outputData();
+        flyWheel.outputData();
         SmartDashboard.putNumber("Ultrasonic Sensor", ultra.get());
         SmartDashboard.putNumber("Angle Error", drive.turnToAngleController.getError());
         SmartDashboard.putNumber("Gear Drive Output", gearDriveOutput);
