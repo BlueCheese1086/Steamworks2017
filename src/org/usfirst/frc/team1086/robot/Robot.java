@@ -31,8 +31,6 @@ public class Robot extends IterativeRobot {
     AutonomousRoutine centerShootRight, centerShootLeft;
     AutonomousRoutine selected;
     CameraTurning targetFinder;
-    //Shooter flyWheel;
-    //ShooterTest flyWheel;
     ShooterTBH tbhShooter;
     Ultrasonic ultra;
     ImageProcessing imageProcessing;
@@ -59,10 +57,7 @@ public class Robot extends IterativeRobot {
         im = new InputManager();
         targetFinder = new CameraTurning();
         ultra = new Ultrasonic(0);
-        //flyWheel = new Shooter();
-        //flyWheel = new Shooter();
         tbhShooter = new ShooterTBH();
-        //flyWheel = new ShooterTest();
         intake = new Intake();
         t = new Timer();
         climber = new Climber();
@@ -451,38 +446,6 @@ public class Robot extends IterativeRobot {
         else 
             evictor.hold();
         
-        /*
-        if(im.getShoot())
-        	flyWheel.shoot();
-        else 
-        	flyWheel.stop();
-        
-        if(im.getTestShoot())
-        	if(!flyWheel.isShooting){
-        		flyWheel.setRPM(-3500);
-        	}
-        	else {
-        		flyWheel.shoot();
-        		SmartDashboard.putNumber("PID Shoot", flyWheel.pidOutput);
-        	}
-        else if(im.getDriverControlShooter())
-        	if(!flyWheel.isShooting){
-        		flyWheel.setRPM(-(int)(6500.0 * (1 + im.auxStick.getZ()) / 2));
-        	}
-        	else {
-        		flyWheel.shoot();
-        		SmartDashboard.putNumber("PID Shoot", flyWheel.pidOutput);
-        	}
-        else 
-        	flyWheel.resetPID(); 
-        */
-        
-        /*
-        if(im.getTestTestShoot())
-        	flyWheel.shoot();
-        else flyWheel.stop(); */
-        
-        
         if(im.getTestTestShoot()){      	
         	if(!tbhShooter.isShooting){
         		tbhShooter.setRPM(-4000);
@@ -555,7 +518,6 @@ public class Robot extends IterativeRobot {
         navX.outputData();
         drive.outputPIDData();
         targetFinder.outputData();
-        //flyWheel.outputData();
         tbhShooter.outputData();
         SmartDashboard.putNumber("Ultrasonic Sensor", ultra.get());
         SmartDashboard.putNumber("Angle Error", drive.turnToAngleController.getError());
