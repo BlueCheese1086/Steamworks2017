@@ -17,8 +17,8 @@ public class RobotMap {
     public static final int INTAKE1 = 15;
     public static final int INTAKE2 = 16;
 
-    public static final int TRIGGER = 1;
-    public static final int SPITTER = 0;
+    public static final int TRIGGER = 0;
+    public static final int SPITTER = 1;
     
     public static final int LEFT_STICK = 0;
     public static final int RIGHT_STICK = 1;

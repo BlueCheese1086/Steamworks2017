@@ -35,10 +35,10 @@ public class Drivetrain {
         leftRearColson = new CANTalon(RobotMap.LEFT_REAR_COLSON);
         rightFrontColson = new CANTalon(RobotMap.RIGHT_FRONT_COLSON);
         rightRearColson = new CANTalon(RobotMap.RIGHT_REAR_COLSON);
-        leftFrontMecanum.setInverted(true);
-        leftFrontColson.setInverted(true);
-        leftRearMecanum.setInverted(true);
-        leftRearColson.setInverted(true);
+        rightFrontMecanum.setInverted(true);
+        rightFrontColson.setInverted(true);
+        rightRearMecanum.setInverted(true);
+        rightRearColson.setInverted(true);
         trigger = new Solenoid(RobotMap.TRIGGER);
         
         navX = new Gyro();
